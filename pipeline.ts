@@ -19,6 +19,7 @@ export default definePipeline({
       runners: ["package"],
       targets: [{ package: "@async/api-contract" }],
       jobs: ["pages", "preview", "publish", "release-doctor", "snapshot", "verify"],
+      tasks: ["docs.site"],
       scripts: {
         "api-surface": "run-task api-surface",
         "api-surface:generate": "run-task api-surface-generate",
@@ -75,11 +76,12 @@ export default definePipeline({
     ]
   },
   tasks: {
-    docs: task({
-      description: "Docs site source check for the generated GitHub Pages workflow.",
-      inputs: ["docs"],
+    "docs.site": task({
+      description: "Build the standardized GitHub Pages documentation site.",
+      inputs: ["README.md", "docs/**/*.md", "scripts/build-pages.js"],
+      outputs: [".async/pages/**"],
       cache: true,
-      run: sh`test -f docs/README.md && test -f README.md`
+      run: sh`node scripts/build-pages.js`
     }),
     "sync-check": task({
       description: "Generated workflow, lock, and package scripts still match pipeline.ts.",
@@ -185,11 +187,11 @@ export default definePipeline({
       trigger: ["pr", "main", "release"]
     }),
     pages: job({
-      target: "docs",
+      target: "docs.site",
       trigger: ["pr", "main", "manual"],
       github: {
         pages: {
-          build: { kind: "jekyll", source: "./docs", destination: "./_site" }
+          build: { kind: "static", path: ".async/pages" }
         }
       }
     }),
