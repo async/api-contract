@@ -6,6 +6,7 @@ export default definePipeline({
   triggers: {
     pr: trigger.github({ events: ["pull_request"] }),
     main: trigger.github({ events: ["push"], branches: ["main"] }),
+    tag: trigger.github({ events: ["push"], tags: ["v0.1.0"] }),
     release: trigger.github({ events: ["release"] }),
     manual: trigger.manual()
   },
@@ -104,7 +105,7 @@ export default definePipeline({
     }),
     publish: job({
       target: "publish-npm",
-      trigger: ["release", "manual"],
+      trigger: ["tag", "release", "manual"],
       environment: {
         name: "npm-publish",
         url: "https://www.npmjs.com/package/@async/api-contract"

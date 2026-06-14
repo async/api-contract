@@ -3,13 +3,16 @@
   "generator": "@async/pipeline",
   "config": "pipeline.ts",
   "workflow": ".github/workflows/async-pipeline.yml",
-  "hash": "sha256:54b80d02d065297f5e0f543c17b8132399ea3c056f493aa809bd8b37f9ed7342",
-  "generatedAt": "2026-06-14T02:40:29.885Z",
+  "hash": "sha256:fc51030d007bbc2c560ccc90f894bc67ec9af397fe396738f73fdd42f83444d4",
+  "generatedAt": "2026-06-14T02:43:32.069Z",
   "triggers": {
     "pull_request": {},
     "push": {
       "branches": [
         "main"
+      ],
+      "tags": [
+        "v0.1.0"
       ]
     },
     "release": {},
@@ -22,6 +25,7 @@
         "publish-npm"
       ],
       "trigger": [
+        "tag",
         "release",
         "manual"
       ],
@@ -38,7 +42,7 @@
       "requires": {
         "provenance": true
       },
-      "if": "(github.event_name == 'release') || (github.event_name == 'workflow_dispatch')"
+      "if": "(github.event_name == 'push' && (github.ref == 'refs/tags/v0.1.0')) || (github.event_name == 'release') || (github.event_name == 'workflow_dispatch')"
     },
     {
       "id": "verify",
