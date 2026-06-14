@@ -3,8 +3,8 @@
   "generator": "@async/pipeline",
   "config": "pipeline.ts",
   "workflow": ".github/workflows/async-pipeline.yml",
-  "hash": "sha256:fc51030d007bbc2c560ccc90f894bc67ec9af397fe396738f73fdd42f83444d4",
-  "generatedAt": "2026-06-14T02:43:32.069Z",
+  "hash": "sha256:5447296bd3ad4d29214333146a64b061a66a85fab987ffcd1e23c37d682d320a",
+  "generatedAt": "2026-06-14T02:46:35.596Z",
   "triggers": {
     "pull_request": {},
     "push": {
@@ -32,7 +32,7 @@
       "env": {
         "NODE_AUTH_TOKEN": {
           "kind": "async-pipeline.env.secret",
-          "name": "NPM_TOKEN"
+          "name": "npm_token"
         }
       },
       "environment": {

@@ -114,7 +114,7 @@ export default definePipeline({
         provenance: true
       },
       env: {
-        NODE_AUTH_TOKEN: env.secret("NPM_TOKEN")
+        NODE_AUTH_TOKEN: env.secret("npm_token")
       }
     })
   }
