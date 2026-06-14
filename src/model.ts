@@ -66,6 +66,8 @@ export interface PackageContractManifest extends ExtensionFields {
 }
 
 export interface ComparePolicy extends ExtensionFields {
+  catalog?: FeatureCatalog;
+  catalogs?: readonly FeatureCatalog[];
   allowedReleaseTags?: readonly ReleaseTag[];
   deprecated?: "allow" | "warn" | "error";
   removed?: "allow" | "warn" | "error";

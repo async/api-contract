@@ -1,6 +1,8 @@
 # @async/api-contract
 
-`@async/api-contract` tracks semantic API features across Async packages. It is a small generic package for producing machine-readable manifests, runtime surfaces, stable hashes, human API ledgers, type-only contracts, and many-repo impact reports.
+`@async/api-contract` makes API compatibility explicit at the feature level. Instead of asking whether two package versions look compatible, a provider publishes the features it supports, a consumer records the features it requires, and CI checks whether the required surface is still a subset of the supported surface.
+
+**30-word value prop:** `@async/api-contract` turns API compatibility into feature-level contracts: publish what packages support, derive what consumers require, and catch breaking changes before versions, docs, or tests drift across Async workspaces during releases.
 
 Compatibility is feature-based, not package-version-based:
 
@@ -12,12 +14,12 @@ Package versions, release tags, docs text, and metadata do not decide compatibil
 
 ## What it produces
 
-- `api-contract.json`: the machine-readable contract a package publishes.
+- `api-contract.json`: the machine-readable contract a package publishes, including catalogs, supported surfaces, required surfaces, emitted surfaces, or usage evidence.
 - `Surface`: normalized runtime data with sorted unique feature ids and a stable hash.
 - `API_SURFACE.md`: a deterministic review ledger for maintainers and docs.
 - Impact reports: a quick way to see which consumers use removed, changed, or deprecated features before running expensive many-repo checks.
 
-## Runtime example
+## Quick start
 
 ```ts
 import {
@@ -29,29 +31,64 @@ import {
 
 const catalog = defineFeatureCatalog({
   format: "api-contract.catalog.v1",
-  contractId: "@async/pipeline.declaration",
+  contractId: "@async/user-api.response",
   features: [
-    { id: "task.run", title: "Runnable task", releaseTag: "public", stability: "stable" },
-    { id: "step.shell", title: "Shell step", releaseTag: "public", stability: "stable" }
+    { id: "user.id", title: "User id field", releaseTag: "public", stability: "stable" },
+    { id: "user.email", title: "User email field", releaseTag: "public", stability: "stable" }
   ]
 });
 
-const required = deriveSurface(tree, {
-  contractId: "@async/pipeline.declaration",
+const userResponse = {
+  id: "usr_123",
+  email: "ada@example.com"
+};
+
+const required = deriveSurface(userResponse, {
+  contractId: "@async/user-api.response",
   catalog,
   strictCatalog: true,
-  rules: pipelineRules
+  rules: [
+    {
+      name: "user-response-fields",
+      visit(value, context) {
+        if (!value || typeof value !== "object" || Array.isArray(value)) return;
+        if ("id" in value) context.add("user.id");
+        if ("email" in value) context.add("user.email");
+      }
+    }
+  ]
 });
 
 const supported = createSurface({
-  contractId: "@async/pipeline.declaration",
-  features: ["task.run", "step.shell"]
+  contractId: "@async/user-api.response",
+  features: ["user.id", "user.email"]
 });
 
-compareSurface(required, supported);
+const result = compareSurface(required, supported);
+
+console.log(required.features); // ["user.email", "user.id"]
+console.log(result.ok); // true
 ```
 
 Host packages own shape validation and derivation rules. For example, `@async/pipeline` should validate branded declaration nodes before deriving a surface from them.
+
+## Policy checks
+
+Subset compatibility is the default. When a catalog is available, comparisons can also enforce release and lifecycle policy:
+
+```ts
+const result = compareSurface(required, supported, {
+  catalog,
+  allowedReleaseTags: ["public"],
+  deprecated: "warn",
+  removed: "error",
+  unknownFeatures: "error"
+});
+
+if (!result.ok) {
+  console.error(result.warnings);
+}
+```
 
 ## Type-only contracts
 
@@ -101,10 +138,12 @@ api-contract ledger --manifest api-contract.json --out API_SURFACE.md
 api-contract ledger --manifest api-contract.json --check API_SURFACE.md
 api-contract diff --before old-api-contract.json --after api-contract.json
 api-contract impact --before old-api-contract.json --after api-contract.json --consumers consumers.json
-api-contract usage scan --target src --dependency @async/pipeline --catalog api-contract.json --out api-usage.json
+api-contract usage scan --target src --package-name @async/consumer --dependency @async/pipeline --catalog api-contract.json --out api-usage.json
 ```
 
 `impact` is intended as a cheap preflight for explicit many-repo impact runs. Read the latest consumer manifests or usage files first; then run full dependent repo checks only for consumers that actually use changed features.
+
+`usage scan` is a line-oriented source preflight. It records dependency and feature-string evidence, but it is not a full parser or proof of semantic usage.
 
 ## Relationship to @async/claims
 
