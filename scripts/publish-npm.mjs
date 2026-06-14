@@ -29,6 +29,17 @@ function output(result) {
   return `${result.stdout ?? ""}${result.stderr ?? ""}`;
 }
 
+function ensurePublicAccess() {
+  console.log(`Ensuring ${manifest.name} is public on npm.`);
+  const access = npm(
+    ["access", "set", "status=public", manifest.name, "--registry", REGISTRY],
+    { inherit: true }
+  );
+  if (access.status !== 0) {
+    process.exit(access.status ?? 1);
+  }
+}
+
 function isMissingVersion(result) {
   return result.status !== 0 && /(^|[\s])(E404|404)([\s]|$)|not found/i.test(output(result));
 }
@@ -39,6 +50,7 @@ if (manifest.private) {
 
 const view = npm(["view", spec, "version", "--registry", REGISTRY]);
 if (view.status === 0 && view.stdout.trim() === manifest.version) {
+  ensurePublicAccess();
   console.log(`${spec} is already published to npm; skipping.`);
   process.exit(0);
 }
@@ -52,4 +64,7 @@ const publish = npm(
   ["publish", "--access", "public", "--registry", REGISTRY, "--provenance"],
   { inherit: true }
 );
-process.exit(publish.status ?? 1);
+if (publish.status !== 0) {
+  process.exit(publish.status ?? 1);
+}
+ensurePublicAccess();
