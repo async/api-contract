@@ -4,6 +4,10 @@
   "description": "Semantic API contract surfaces, ledgers, and impact checks for Async packages.",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/async/api-contract.git"
+  },
   "packageManager": "pnpm@10.20.0",
   "engines": {
     "node": ">=24"
