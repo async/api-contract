@@ -3,8 +3,8 @@
   "generator": "@async/pipeline",
   "config": "pipeline.ts",
   "workflow": ".github/workflows/async-pipeline.yml",
-  "hash": "sha256:75c88853e8700f2d26b560b4eb9cf329ba59e493e2641f8dc49cb2a6692efaa4",
-  "generatedAt": "2026-06-14T11:16:50.679Z",
+  "hash": "sha256:bc40c4717c245be72a315cd4239459daee2cdf1ba0ab001b662522017f67a1bb",
+  "generatedAt": "2026-06-14T19:51:34.463Z",
   "triggers": {
     "pull_request": {},
     "push": {
@@ -19,7 +19,7 @@
     {
       "id": "pages",
       "target": [
-        "docs"
+        "docs.site"
       ],
       "trigger": [
         "pr",
@@ -30,9 +30,8 @@
       "github": {
         "pages": {
           "build": {
-            "kind": "jekyll",
-            "source": "./docs",
-            "destination": "./_site"
+            "kind": "static",
+            "path": ".async/pages"
           }
         }
       },

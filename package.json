@@ -46,6 +46,7 @@
     "pipeline:snapshot": "async-pipeline run snapshot",
     "pipeline:sync:check": "async-pipeline sync check",
     "pipeline:sync:generate": "async-pipeline sync generate",
+    "pipeline:task:docs.site": "async-pipeline run-task docs.site",
     "pipeline:verify": "async-pipeline run verify",
     "pipeline:verify:force": "async-pipeline run verify --force",
     "release:check": "pnpm run pipeline:verify:force",
