@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "generator": "@async/pipeline",
+  "config": "pipeline.ts",
+  "workflow": ".github/workflows/async-pipeline.yml",
+  "hash": "sha256:54b80d02d065297f5e0f543c17b8132399ea3c056f493aa809bd8b37f9ed7342",
+  "generatedAt": "2026-06-14T02:40:29.885Z",
+  "triggers": {
+    "pull_request": {},
+    "push": {
+      "branches": [
+        "main"
+      ]
+    },
+    "release": {},
+    "workflow_dispatch": {}
+  },
+  "jobs": [
+    {
+      "id": "publish",
+      "target": [
+        "publish-npm"
+      ],
+      "trigger": [
+        "release",
+        "manual"
+      ],
+      "env": {
+        "NODE_AUTH_TOKEN": {
+          "kind": "async-pipeline.env.secret",
+          "name": "NPM_TOKEN"
+        }
+      },
+      "environment": {
+        "name": "npm-publish",
+        "url": "https://www.npmjs.com/package/@async/api-contract"
+      },
+      "requires": {
+        "provenance": true
+      },
+      "if": "(github.event_name == 'release') || (github.event_name == 'workflow_dispatch')"
+    },
+    {
+      "id": "verify",
+      "target": [
+        "pack"
+      ],
+      "trigger": [
+        "pr",
+        "main",
+        "manual",
+        "release"
+      ],
+      "env": {},
+      "if": "(github.event_name == 'pull_request') || (github.event_name == 'push' && (github.ref == 'refs/heads/main')) || (github.event_name == 'workflow_dispatch') || (github.event_name == 'release')"
+    }
+  ],
+  "packageManager": "pnpm",
+  "nodeVersion": "24",
+  "taskCache": true
+}

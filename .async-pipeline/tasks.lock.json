@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "generator": "@async/pipeline",
+  "config": "pipeline.ts",
+  "prefix": "pipeline",
+  "runners": [
+    "package"
+  ],
+  "targets": [
+    {
+      "package": "@async/api-contract"
+    }
+  ],
+  "manifests": [
+    {
+      "path": "package.json",
+      "runner": "package",
+      "field": "scripts",
+      "commands": [
+        {
+          "name": "pipeline:publish",
+          "value": "async-pipeline run publish"
+        },
+        {
+          "name": "pipeline:verify",
+          "value": "async-pipeline run verify"
+        },
+        {
+          "name": "pipeline:github:check",
+          "value": "async-pipeline github check"
+        },
+        {
+          "name": "pipeline:github:generate",
+          "value": "async-pipeline github generate"
+        },
+        {
+          "name": "pipeline:sync:check",
+          "value": "async-pipeline sync check"
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "name": "pipeline:publish",
+      "value": "async-pipeline run publish"
+    },
+    {
+      "name": "pipeline:verify",
+      "value": "async-pipeline run verify"
+    },
+    {
+      "name": "pipeline:github:check",
+      "value": "async-pipeline github check"
+    },
+    {
+      "name": "pipeline:github:generate",
+      "value": "async-pipeline github generate"
+    },
+    {
+      "name": "pipeline:sync:check",
+      "value": "async-pipeline sync check"
+    }
+  ],
+  "hash": "sha256:4657dfad5d8b11a98d0c91aa094870c5d8fdd39dfff1103a66317d0ae20bff29",
+  "generatedAt": "2026-06-14T02:40:29.904Z"
+}

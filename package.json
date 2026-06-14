@@ -22,10 +22,18 @@
     "api-contract": "./dist/cli.js"
   },
   "scripts": {
+    "async-pipeline": "async-pipeline",
     "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "pnpm build && pnpm typecheck:contracts && node --test test/*.test.js",
     "pack:check": "npm --cache .async/npm-cache pack --dry-run",
+    "pipeline:github:check": "async-pipeline github check",
+    "pipeline:github:generate": "async-pipeline github generate",
+    "pipeline:publish": "async-pipeline run publish",
+    "pipeline:sync:check": "async-pipeline sync check",
+    "pipeline:verify": "async-pipeline run verify",
+    "release:check": "pnpm pipeline:verify",
+    "release:publish": "node scripts/publish-npm.mjs",
+    "test": "pnpm build && pnpm typecheck:contracts && node --test test/*.test.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:contracts": "tsc --ignoreConfig --noEmit --module NodeNext --moduleResolution NodeNext --target ES2024 --strict test/types.test-d.ts"
   },
   "files": [
@@ -34,8 +42,12 @@
     "README.md",
     "CHANGELOG.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "devDependencies": {
+    "@async/pipeline": "0.2.4",
     "@types/node": "24.12.4",
     "typescript": "6.0.3"
   }
