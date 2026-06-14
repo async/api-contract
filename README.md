@@ -21,6 +21,10 @@ Package versions, release tags, docs text, and metadata do not decide compatibil
 
 ## Quick start
 
+```sh
+pnpm add @async/api-contract
+```
+
 ```ts
 import {
   compareSurface,
@@ -144,6 +148,28 @@ api-contract usage scan --target src --package-name @async/consumer --dependency
 `impact` is intended as a cheap preflight for explicit many-repo impact runs. Read the latest consumer manifests or usage files first; then run full dependent repo checks only for consumers that actually use changed features.
 
 `usage scan` is a line-oriented source preflight. It records dependency and feature-string evidence, but it is not a full parser or proof of semantic usage.
+
+## Maintainer workflow
+
+The repository's package scripts and GitHub Actions are generated from `pipeline.ts` through `@async/pipeline`.
+
+```sh
+pnpm run pipeline:verify
+pnpm run pipeline:api-surface
+pnpm run pipeline:api-surface:generate
+pnpm run pipeline:github:check
+pnpm run pipeline:sync:check
+pnpm run release:check
+```
+
+Release and preview lifecycle commands are also synced from `pipeline.ts`:
+
+```sh
+pnpm run pipeline:preview
+pnpm run pipeline:snapshot
+pnpm run pipeline:publish
+pnpm run pipeline:release:doctor
+```
 
 ## Relationship to @async/claims
 

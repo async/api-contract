@@ -6,7 +6,6 @@ export default definePipeline({
   triggers: {
     pr: trigger.github({ events: ["pull_request"] }),
     main: trigger.github({ events: ["push"], branches: ["main"] }),
-    tag: trigger.github({ events: ["push"], tags: ["v0.1.0"] }),
     release: trigger.github({ events: ["release"] }),
     manual: trigger.manual()
   },
@@ -19,11 +18,21 @@ export default definePipeline({
       prefix: "pipeline",
       runners: ["package"],
       targets: [{ package: "@async/api-contract" }],
-      jobs: ["verify", "publish"],
+      jobs: ["pages", "preview", "publish", "release-doctor", "snapshot", "verify"],
       scripts: {
+        "api-surface": "run-task api-surface",
+        "api-surface:generate": "run-task api-surface-generate",
         "github:check": "github check",
         "github:generate": "github generate",
-        "sync:check": "sync check"
+        "publish:github:main": "publish github main --package .",
+        "publish:github:pr": "publish github pr --package .",
+        "publish:github:release": "publish github release --package .",
+        "publish:npm": "publish npm --package .",
+        "release:doctor": "release doctor --package .",
+        "release:ensure": "release ensure --package .",
+        "sync:check": "sync check",
+        "sync:generate": "sync generate",
+        "verify:force": "run verify --force"
       }
     }
   },
@@ -38,23 +47,64 @@ export default definePipeline({
       "pnpm-lock.yaml",
       "tsconfig.json"
     ],
+    docs: [
+      "README.md",
+      "docs/**/*.md"
+    ],
     pipeline: [
       "pipeline.ts",
+      ".npmrc",
       "scripts/**/*.mjs",
       ".github/workflows/async-pipeline.yml",
       ".github/async-pipeline.lock.json",
       ".async-pipeline/tasks.lock.json"
+    ],
+    "api-surface": [
+      "api-contract.json",
+      "API_SURFACE.md"
     ],
     production: [
       "src/**/*.ts",
       "examples/**/*",
       "README.md",
       "CHANGELOG.md",
+      "api-contract.json",
+      "API_SURFACE.md",
       "package.json",
       "tsconfig.json"
     ]
   },
   tasks: {
+    docs: task({
+      description: "Docs site source check for the generated GitHub Pages workflow.",
+      inputs: ["docs"],
+      cache: true,
+      run: sh`test -f docs/README.md && test -f README.md`
+    }),
+    "sync-check": task({
+      description: "Generated workflow, lock, and package scripts still match pipeline.ts.",
+      inputs: ["pipeline", "package.json"],
+      cache: false,
+      run: sh`pnpm async-pipeline sync check`
+    }),
+    "api-surface-generate": task({
+      description: "Regenerate the @async/api-contract API surface review ledger from the checked-in manifest.",
+      dependsOn: ["build"],
+      inputs: ["api-contract.json"],
+      outputs: ["API_SURFACE.md"],
+      cache: false,
+      run: sh`node dist/cli.js ledger --manifest api-contract.json --out API_SURFACE.md`
+    }),
+    "api-surface": task({
+      description: "Validate the @async/api-contract manifest and generated review ledger through its own CLI.",
+      dependsOn: ["build"],
+      inputs: ["api-surface"],
+      cache: true,
+      run: [
+        sh`node dist/cli.js check --manifest api-contract.json`,
+        sh`node dist/cli.js ledger --manifest api-contract.json --check API_SURFACE.md`
+      ]
+    }),
     build: task({
       inputs: ["production"],
       outputs: ["dist/**"],
@@ -71,7 +121,7 @@ export default definePipeline({
       dependsOn: ["build"],
       inputs: ["source"],
       cache: true,
-      run: sh`pnpm typecheck:contracts`
+      run: sh`pnpm run typecheck:contracts`
     }),
     test: task({
       dependsOn: ["typecheck", "typecheck-contracts"],
@@ -79,33 +129,100 @@ export default definePipeline({
       cache: true,
       run: sh`node --test test/*.test.js`
     }),
-    "sync-check": task({
-      inputs: ["pipeline"],
-      cache: false,
-      run: sh`pnpm async-pipeline sync check`
-    }),
     pack: task({
-      dependsOn: ["test", "sync-check"],
-      inputs: ["production", "pipeline"],
+      dependsOn: ["test", "api-surface", "sync-check"],
+      inputs: ["production", "pipeline", "api-surface"],
       cache: false,
       run: sh`pnpm pack:check`
     }),
-    "publish-npm": task({
-      description: "Publish the stable package to npm with provenance, skipping if the package version already exists.",
+    preview: task({
+      description: "Same-repo PRs publish an immutable 0.0.0-pr.<n>.sha.<sha> preview to GitHub Packages, move the pr-<n> dist-tag, and upsert one install-instructions comment. Fork PRs skip.",
       dependsOn: ["pack"],
-      inputs: ["production", "pipeline"],
+      inputs: ["production"],
       cache: false,
-      run: sh`node scripts/publish-npm.mjs`
+      run: sh`pnpm async-pipeline publish github pr --package .`
+    }),
+    snapshot: task({
+      description: "Pushes to main publish an immutable 0.0.0-main.sha.<sha> snapshot to GitHub Packages and move the main dist-tag while the commit is still the branch head.",
+      dependsOn: ["pack"],
+      inputs: ["production"],
+      cache: false,
+      run: sh`pnpm async-pipeline publish github main --package .`
+    }),
+    "publish-github": task({
+      description: "Stable mirror to GitHub Packages (latest tag). Runs before npm publish so the fallback registry is never behind the primary release path.",
+      dependsOn: ["release-ensure"],
+      inputs: ["production"],
+      cache: false,
+      run: sh`pnpm async-pipeline publish github release --package .`
+    }),
+    "release-ensure": task({
+      description: "Create or verify the release tag and GitHub Release before package publishing.",
+      dependsOn: ["pack"],
+      inputs: ["production"],
+      cache: false,
+      run: sh`pnpm async-pipeline release ensure --package .`
+    }),
+    publish: task({
+      dependsOn: ["publish-github"],
+      inputs: ["production"],
+      cache: false,
+      run: [
+        sh`pnpm async-pipeline publish npm --package .`,
+        sh`pnpm async-pipeline release doctor --package .`
+      ]
+    }),
+    "release-doctor": task({
+      description: "Verify that the stable version exists on npm, GitHub Packages, and GitHub Releases after the publish job completes.",
+      inputs: ["production"],
+      cache: false,
+      run: sh`pnpm async-pipeline release doctor --package .`
     })
   },
   jobs: {
     verify: job({
       target: "pack",
-      trigger: ["pr", "main", "manual", "release"]
+      trigger: ["pr", "main", "release"]
+    }),
+    pages: job({
+      target: "docs",
+      trigger: ["pr", "main", "manual"],
+      github: {
+        pages: {
+          build: { kind: "jekyll", source: "./docs", destination: "./_site" }
+        }
+      }
+    }),
+    preview: job({
+      target: "preview",
+      trigger: ["pr"],
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          issues: "write",
+          packages: "write",
+          pullRequests: "write"
+        }
+      }
+    }),
+    snapshot: job({
+      target: "snapshot",
+      trigger: ["main"],
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          contents: "write",
+          packages: "write"
+        }
+      }
     }),
     publish: job({
-      target: "publish-npm",
-      trigger: ["tag", "release", "manual"],
+      target: "publish",
+      trigger: ["manual", "release"],
       environment: {
         name: "npm-publish",
         url: "https://www.npmjs.com/package/@async/api-contract"
@@ -114,7 +231,26 @@ export default definePipeline({
         provenance: true
       },
       env: {
-        NODE_AUTH_TOKEN: env.secret("npm_token")
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN"),
+        NODE_AUTH_TOKEN: env.secret("NPM_TOKEN")
+      },
+      github: {
+        permissions: {
+          packages: "write"
+        }
+      }
+    }),
+    "release-doctor": job({
+      target: "release-doctor",
+      trigger: ["manual"],
+      env: {
+        GITHUB_TOKEN: env.secret("GITHUB_TOKEN")
+      },
+      github: {
+        permissions: {
+          contents: "read",
+          packages: "read"
+        }
       }
     })
   }
