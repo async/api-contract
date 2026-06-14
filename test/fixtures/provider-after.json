@@ -1,0 +1,22 @@
+{
+  "format": "api-contract.package.v1",
+  "packageName": "@async/pipeline",
+  "catalogs": [
+    {
+      "format": "api-contract.catalog.v1",
+      "contractId": "@async/pipeline.declaration",
+      "features": [
+        { "id": "step.exec", "title": "Executable step", "releaseTag": "public" },
+        { "id": "task.run", "title": "Runnable task", "releaseTag": "public" }
+      ]
+    }
+  ],
+  "supported": [
+    {
+      "format": "api-contract.surface.v1",
+      "contractId": "@async/pipeline.declaration",
+      "features": ["step.exec", "task.run"],
+      "hash": "sha256:f2d05f73ed14b275b65404c21cf7987ffae3439d033699603f5ea0ddf4fcaa26"
+    }
+  ]
+}

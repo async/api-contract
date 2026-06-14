@@ -1,0 +1,13 @@
+{
+  "subject": "npm:@async/claims-pipeline@1.0.0",
+  "claim": "requires-api-contract",
+  "surface": {
+    "format": "api-contract.surface.v1",
+    "contractId": "@async/pipeline.declaration",
+    "features": ["step.shell", "task.run"],
+    "hash": "sha256:6ed689db2412e486f7b1c57ba255d8ab244e9d1a801ebc143049449bc4b21a95"
+  },
+  "evidence": "published-manifest",
+  "issuer": "npm:@async/claims-pipeline",
+  "issuedAt": "2026-06-14T00:00:00Z"
+}

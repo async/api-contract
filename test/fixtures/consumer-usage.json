@@ -1,0 +1,17 @@
+{
+  "format": "api-contract.package.v1",
+  "packageName": "@async/claims-pipeline",
+  "usage": [
+    {
+      "packageName": "@async/claims-pipeline",
+      "dependencyName": "@async/pipeline",
+      "evidence": "published-manifest",
+      "surface": {
+        "format": "api-contract.surface.v1",
+        "contractId": "@async/pipeline.declaration",
+        "features": ["step.shell"],
+        "hash": "sha256:ea0b65d913df6f3cf427751be4aa4eece6b7e04ce89ff67b754d1dffa23deb93"
+      }
+    }
+  ]
+}
