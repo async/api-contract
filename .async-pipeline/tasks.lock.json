@@ -18,12 +18,36 @@
       "field": "scripts",
       "commands": [
         {
+          "name": "pipeline:pages",
+          "value": "async-pipeline run pages"
+        },
+        {
+          "name": "pipeline:preview",
+          "value": "async-pipeline run preview"
+        },
+        {
           "name": "pipeline:publish",
           "value": "async-pipeline run publish"
         },
         {
+          "name": "pipeline:release-doctor",
+          "value": "async-pipeline run release-doctor"
+        },
+        {
+          "name": "pipeline:snapshot",
+          "value": "async-pipeline run snapshot"
+        },
+        {
           "name": "pipeline:verify",
           "value": "async-pipeline run verify"
+        },
+        {
+          "name": "pipeline:api-surface",
+          "value": "async-pipeline run-task api-surface"
+        },
+        {
+          "name": "pipeline:api-surface:generate",
+          "value": "async-pipeline run-task api-surface-generate"
         },
         {
           "name": "pipeline:github:check",
@@ -34,20 +58,76 @@
           "value": "async-pipeline github generate"
         },
         {
+          "name": "pipeline:publish:github:main",
+          "value": "async-pipeline publish github main --package ."
+        },
+        {
+          "name": "pipeline:publish:github:pr",
+          "value": "async-pipeline publish github pr --package ."
+        },
+        {
+          "name": "pipeline:publish:github:release",
+          "value": "async-pipeline publish github release --package ."
+        },
+        {
+          "name": "pipeline:publish:npm",
+          "value": "async-pipeline publish npm --package ."
+        },
+        {
+          "name": "pipeline:release:doctor",
+          "value": "async-pipeline release doctor --package ."
+        },
+        {
+          "name": "pipeline:release:ensure",
+          "value": "async-pipeline release ensure --package ."
+        },
+        {
           "name": "pipeline:sync:check",
           "value": "async-pipeline sync check"
+        },
+        {
+          "name": "pipeline:sync:generate",
+          "value": "async-pipeline sync generate"
+        },
+        {
+          "name": "pipeline:verify:force",
+          "value": "async-pipeline run verify --force"
         }
       ]
     }
   ],
   "commands": [
     {
+      "name": "pipeline:pages",
+      "value": "async-pipeline run pages"
+    },
+    {
+      "name": "pipeline:preview",
+      "value": "async-pipeline run preview"
+    },
+    {
       "name": "pipeline:publish",
       "value": "async-pipeline run publish"
     },
     {
+      "name": "pipeline:release-doctor",
+      "value": "async-pipeline run release-doctor"
+    },
+    {
+      "name": "pipeline:snapshot",
+      "value": "async-pipeline run snapshot"
+    },
+    {
       "name": "pipeline:verify",
       "value": "async-pipeline run verify"
+    },
+    {
+      "name": "pipeline:api-surface",
+      "value": "async-pipeline run-task api-surface"
+    },
+    {
+      "name": "pipeline:api-surface:generate",
+      "value": "async-pipeline run-task api-surface-generate"
     },
     {
       "name": "pipeline:github:check",
@@ -58,10 +138,42 @@
       "value": "async-pipeline github generate"
     },
     {
+      "name": "pipeline:publish:github:main",
+      "value": "async-pipeline publish github main --package ."
+    },
+    {
+      "name": "pipeline:publish:github:pr",
+      "value": "async-pipeline publish github pr --package ."
+    },
+    {
+      "name": "pipeline:publish:github:release",
+      "value": "async-pipeline publish github release --package ."
+    },
+    {
+      "name": "pipeline:publish:npm",
+      "value": "async-pipeline publish npm --package ."
+    },
+    {
+      "name": "pipeline:release:doctor",
+      "value": "async-pipeline release doctor --package ."
+    },
+    {
+      "name": "pipeline:release:ensure",
+      "value": "async-pipeline release ensure --package ."
+    },
+    {
       "name": "pipeline:sync:check",
       "value": "async-pipeline sync check"
+    },
+    {
+      "name": "pipeline:sync:generate",
+      "value": "async-pipeline sync generate"
+    },
+    {
+      "name": "pipeline:verify:force",
+      "value": "async-pipeline run verify --force"
     }
   ],
-  "hash": "sha256:4657dfad5d8b11a98d0c91aa094870c5d8fdd39dfff1103a66317d0ae20bff29",
-  "generatedAt": "2026-06-14T02:46:35.614Z"
+  "hash": "sha256:3a9e1e892dedd13e4e39fc488e5054e5596221191bda5359c15e38909f697412",
+  "generatedAt": "2026-06-14T10:42:58.633Z"
 }
