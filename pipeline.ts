@@ -40,7 +40,7 @@ export default definePipeline({
   namedInputs: {
     source: [
       "src/**/*.ts",
-      "test/**/*",
+      "tests/**/*",
       "examples/**/*",
       "README.md",
       "CHANGELOG.md",
@@ -129,7 +129,7 @@ export default definePipeline({
       dependsOn: ["typecheck", "typecheck-contracts"],
       inputs: ["source"],
       cache: true,
-      run: sh`node --test test/*.test.js`
+      run: sh`node --test tests/*.test.js`
     }),
     pack: task({
       dependsOn: ["test", "api-surface", "sync-check"],

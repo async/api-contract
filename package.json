@@ -50,9 +50,9 @@
     "pipeline:verify": "async-pipeline run verify",
     "pipeline:verify:force": "async-pipeline run verify --force",
     "release:check": "pnpm run pipeline:verify:force",
-    "test": "pnpm run build && pnpm run typecheck:contracts && node --test test/*.test.js",
+    "test": "pnpm run build && pnpm run typecheck:contracts && node --test tests/*.test.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "typecheck:contracts": "tsc --ignoreConfig --noEmit --module NodeNext --moduleResolution NodeNext --target ES2024 --strict test/types.test-d.ts"
+    "typecheck:contracts": "tsc --ignoreConfig --noEmit --module NodeNext --moduleResolution NodeNext --target ES2024 --strict tests/types.test-d.ts"
   },
   "files": [
     "dist",
