@@ -4,7 +4,6 @@ import {
   bindApiHandlers,
   createOperationSurface,
   defineApiContract,
-  defineJsonSchema,
   generateCliDescriptor,
   generateDashboardManifest,
   generatePackageManifest,
@@ -13,8 +12,24 @@ import {
   renderApiSurfaceMarkdown
 } from '../dist/index.js';
 import { diffPackageContracts } from '../dist/index.js';
+import {
+  createSchemaFeature,
+  defineSchema,
+  jsonSchemaAdapter,
+  standardSchemaAdapter
+} from '../dist/schema.js';
+import {
+  defineCliProjection,
+  defineDashboardProjection,
+  defineProjectionSet
+} from '../dist/projection.js';
+import {
+  generateApiSurfaceMarkdown,
+  generateMachineCliRouter,
+  generateTypeScriptClient
+} from '../dist/generators.js';
 
-const projectInitInput = defineJsonSchema({
+const projectInitInput = jsonSchemaAdapter({
   type: 'object',
   required: ['name'],
   properties: {
@@ -32,13 +47,33 @@ const projectInitInput = defineJsonSchema({
   examples: () => [{ name: 'Acme Console', directory: './acme-console' }]
 });
 
-const projectResult = defineJsonSchema({
+const projectResult = jsonSchemaAdapter({
   type: 'object',
   required: ['ok'],
   properties: {
     ok: { type: 'boolean' },
     reportPath: { type: 'string' }
   }
+});
+
+const projectConfigSchema = defineSchema({
+  id: 'project.config',
+  title: 'Project config',
+  description: 'Local project configuration shape.',
+  adapter: jsonSchemaAdapter({
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      directory: { type: 'string' }
+    }
+  }),
+  fields: [{
+    field: 'name',
+    label: 'Project name',
+    helpText: 'Human-readable project name.',
+    widget: 'text',
+    prompt: 'What is the project name?'
+  }]
 });
 
 function workspaceContract() {
@@ -50,6 +85,11 @@ function workspaceContract() {
       path: 'README.md',
       summary: 'Explains how workspace operations project into API, CLI, and dashboard surfaces.'
     }],
+    schemas: [projectConfigSchema],
+    projections: defineProjectionSet({
+      cli: [defineCliProjection({ command: 'project inspect', interactive: false })],
+      dashboard: [defineDashboardProjection({ group: 'Project', view: 'detail', transport: 'machine-cli' })]
+    }),
     operations: {
       'project.init': {
         title: 'Initialize project',
@@ -84,6 +124,8 @@ test('defineApiContract derives operation surfaces and package manifests', () =>
   assert.equal(manifest.packageName, '@acme/workspace-tool');
   assert.equal(manifest['x-interface'].format, 'api-contract.interface.v1');
   assert.equal(manifest['x-interface'].operations.length, 2);
+  assert.equal(manifest['x-interface'].schemas[0].id, 'project.config');
+  assert.equal(manifest['x-interface'].projections.cli[0].command, 'project inspect');
 
   const parsed = parsePackageContractManifest(manifest);
   assert.equal(parsed['x-interface'].operations[0].id, 'project.init');
@@ -124,6 +166,46 @@ test('generated dashboard manifest uses the machine CLI as transport', () => {
     transport: 'cli',
     command: ['workspace-tool', 'api', 'invoke', 'project.init', '--input-json', '<json>']
   });
+});
+
+test('schema metadata supports feature derivation and standard schema adapters', () => {
+  const feature = createSchemaFeature(projectConfigSchema, { stability: 'stable' });
+  assert.deepEqual(feature, {
+    id: 'schema.project.config',
+    title: 'Project config',
+    releaseTag: 'public',
+    lifecycle: 'active',
+    description: 'Local project configuration shape.',
+    stability: 'stable',
+    group: 'schemas'
+  });
+
+  const adapter = standardSchemaAdapter({
+    '~standard': {
+      validate(value) {
+        if (value === 'ok') return { value };
+        return { issues: [{ message: 'expected ok' }] };
+      }
+    }
+  });
+
+  assert.equal(adapter.parse('ok'), 'ok');
+  assert.throws(() => adapter.parse('nope'), /expected ok/);
+});
+
+test('generator subpath emits API markdown, machine CLI routers, and TypeScript clients', () => {
+  const contract = workspaceContract();
+  const manifest = generatePackageManifest(contract);
+  const markdown = generateApiSurfaceMarkdown({ manifest });
+  const router = generateMachineCliRouter(contract, { binaryName: 'workspace-tool' });
+  const client = generateTypeScriptClient(contract, { clientName: 'workspaceToolClient' });
+
+  assert.match(markdown, /## Operations/);
+  assert.equal(router.format, 'api-contract.machine-cli-router.v1');
+  assert.deepEqual(router.routes[0].describe, ['workspace-tool', 'api', 'describe', 'project.init', '--json']);
+  assert.match(client, /export const operationIds/);
+  assert.match(client, /workspaceToolClient/);
+  assert.match(client, /"project\.init": \(input: unknown\) => invokeOperation/);
 });
 
 test('bound handlers keep programmatic invocation behind generated surfaces', async () => {

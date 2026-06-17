@@ -11,7 +11,12 @@ import type {
   InferOperationOutput,
   OperationSpec
 } from "@async/api-contract/interface";
-import type { CliDescriptor as GeneratorCliDescriptor } from "@async/api-contract/generators";
+import type { SchemaMetadata } from "@async/api-contract/schema";
+import type { ProjectionSet } from "@async/api-contract/projection";
+import type {
+  CliDescriptor as GeneratorCliDescriptor,
+  MachineCliRouterDescriptor
+} from "@async/api-contract/generators";
 
 type LoosePipelineRequirement = RequiresContract<"@async/pipeline.declaration">;
 type ShellStepRequirement = RequiresContract<"@async/pipeline.declaration", "task.run" | "step.shell">;
@@ -32,6 +37,9 @@ type LiteralHandlers = ApiHandlersFor<LiteralContract["operations"]>;
 type HandlerInputCheck = Expect<IsEqual<Parameters<LiteralHandlers["project.init"]>[0], { name: string }>>;
 type HandlerOutputCheck = Expect<IsEqual<Awaited<ReturnType<LiteralHandlers["project.init"]>>, { ok: boolean }>>;
 type GeneratorExportCheck = Expect<IsEqual<GeneratorCliDescriptor["format"], "api-contract.cli.v1">>;
+type MachineRouterExportCheck = Expect<IsEqual<MachineCliRouterDescriptor["format"], "api-contract.machine-cli-router.v1">>;
+type SchemaExportCheck = Expect<IsEqual<SchemaMetadata["id"], string>>;
+type ProjectionExportCheck = Expect<IsEqual<ProjectionSet["cli"], ProjectionSet["cli"]>>;
 
 export type TypeContractSmoke =
   | ExactCheck
@@ -40,4 +48,7 @@ export type TypeContractSmoke =
   | OperationOutputCheck
   | HandlerInputCheck
   | HandlerOutputCheck
-  | GeneratorExportCheck;
+  | GeneratorExportCheck
+  | MachineRouterExportCheck
+  | SchemaExportCheck
+  | ProjectionExportCheck;

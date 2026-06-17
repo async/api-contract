@@ -48,6 +48,34 @@ export interface JsonSchemaAdapterOptions<T> {
   describe?(): SchemaDescription;
 }
 
+export interface SchemaFieldHint extends ExtensionFields {
+  field: string;
+  label?: string;
+  helpText?: string;
+  widget?: "text" | "textarea" | "number" | "checkbox" | "select" | "radio" | "file" | "path" | "json" | (string & {});
+  prompt?: string;
+  placeholder?: string;
+  enumLabels?: Record<string, string>;
+}
+
+export interface SchemaMetadata<T = unknown> extends ExtensionFields {
+  id: string;
+  title?: string;
+  description?: string;
+  featureId?: string;
+  adapter: SchemaAdapter<T>;
+  fields?: readonly SchemaFieldHint[];
+}
+
+export interface DefineSchemaInput<T = unknown> extends ExtensionFields {
+  id: string;
+  title?: string;
+  description?: string;
+  featureId?: string;
+  adapter: SchemaAdapter<T>;
+  fields?: readonly SchemaFieldHint[];
+}
+
 export interface DocSource extends ExtensionFields {
   id: string;
   title?: string;
@@ -102,6 +130,7 @@ export interface CliProjection extends ExtensionFields {
 }
 
 export interface DashboardProjection extends ExtensionFields {
+  operationId?: OperationId;
   group?: string;
   view?: "form" | "table" | "detail" | "summary" | (string & {});
   resultView?: "summary" | "table" | "detail" | "log" | (string & {});
@@ -109,6 +138,12 @@ export interface DashboardProjection extends ExtensionFields {
   description?: string;
   sort?: number;
   emptyState?: string;
+  transport?: "machine-cli" | "programmatic" | "none" | (string & {});
+}
+
+export interface ProjectionSet extends ExtensionFields {
+  cli?: readonly CliProjection[];
+  dashboard?: readonly DashboardProjection[];
 }
 
 export interface OperationSpec<TInput = unknown, TOutput = unknown, TId extends string = OperationId> extends ExtensionFields {
@@ -157,6 +192,8 @@ export interface ApiContract<TOperations extends readonly OperationSpec[] = read
   contractId: string;
   title?: string;
   docs?: readonly DocSource[];
+  schemas?: readonly SchemaMetadata[];
+  projections?: ProjectionSet;
   operations: TOperations;
 }
 
@@ -165,6 +202,8 @@ export interface DefineApiContractInput extends ExtensionFields {
   contractId?: string;
   title?: string;
   docs?: readonly DocSource[];
+  schemas?: readonly SchemaMetadata[];
+  projections?: ProjectionSet;
   operations: readonly (DefineOperationInput | OperationSpec)[] | OperationRecord;
 }
 
@@ -200,7 +239,18 @@ export interface SerializedApiInterface extends ExtensionFields {
   contractId: string;
   title?: string;
   docs?: readonly DocSource[];
+  schemas?: readonly SerializedSchemaMetadata[];
+  projections?: ProjectionSet;
   operations: readonly SerializedOperationSpec[];
+}
+
+export interface SerializedSchemaMetadata extends ExtensionFields {
+  id: string;
+  title?: string;
+  description?: string;
+  featureId?: string;
+  schema: SerializedSchema;
+  fields?: readonly SchemaFieldHint[];
 }
 
 export interface GenerateManifestOptions {
@@ -310,6 +360,19 @@ export function defineJsonSchema<T = unknown>(schema: unknown, options: JsonSche
   };
 }
 
+export function defineSchema<T = unknown>(input: DefineSchemaInput<T>): SchemaMetadata<T> {
+  assertNonEmptyString(input.id, "Schema.id");
+  return {
+    ...copyExtensionFields(input),
+    id: input.id,
+    adapter: input.adapter,
+    ...(input.title === undefined ? {} : { title: input.title }),
+    ...(input.description === undefined ? {} : { description: input.description }),
+    ...(input.featureId === undefined ? {} : { featureId: input.featureId }),
+    ...(input.fields === undefined ? {} : { fields: input.fields })
+  };
+}
+
 export function defineOperation<TInput = unknown, TOutput = unknown>(input: DefineOperationInput<TInput, TOutput>): OperationSpec<TInput, TOutput> {
   const id = input.id;
   if (!id) throw new Error("Operation.id must be a non-empty string");
@@ -357,6 +420,8 @@ export function defineApiContract(input: DefineApiContractInput): ApiContract {
     contractId,
     ...(input.title === undefined ? {} : { title: input.title }),
     ...(input.docs === undefined ? {} : { docs: input.docs }),
+    ...(input.schemas === undefined ? {} : { schemas: input.schemas }),
+    ...(input.projections === undefined ? {} : { projections: input.projections }),
     operations: operations.sort((a, b) => a.id.localeCompare(b.id))
   };
 }
@@ -393,6 +458,8 @@ export function serializeApiInterface(contract: ApiContract): SerializedApiInter
     contractId: contract.contractId,
     ...(contract.title === undefined ? {} : { title: contract.title }),
     ...(contract.docs === undefined ? {} : { docs: contract.docs }),
+    ...(contract.schemas === undefined ? {} : { schemas: contract.schemas.map(serializeSchemaMetadata) }),
+    ...(contract.projections === undefined ? {} : { projections: contract.projections }),
     operations: contract.operations.map(serializeOperation)
   };
 }
@@ -578,6 +645,18 @@ function serializeSchema(schema: SchemaAdapter): SerializedSchema {
     ...(schema.defaults === undefined ? {} : { defaults: schema.defaults() }),
     ...(schema.examples === undefined ? {} : { examples: schema.examples() }),
     ...(schema.describe === undefined ? {} : { description: schema.describe() })
+  };
+}
+
+function serializeSchemaMetadata(schema: SchemaMetadata): SerializedSchemaMetadata {
+  return {
+    ...copyExtensionFields(schema),
+    id: schema.id,
+    schema: serializeSchema(schema.adapter),
+    ...(schema.title === undefined ? {} : { title: schema.title }),
+    ...(schema.description === undefined ? {} : { description: schema.description }),
+    ...(schema.featureId === undefined ? {} : { featureId: schema.featureId }),
+    ...(schema.fields === undefined ? {} : { fields: schema.fields })
   };
 }
 

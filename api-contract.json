@@ -96,6 +96,24 @@
           "docsUrl": "https://github.com/async/api-contract#quick-start"
         },
         {
+          "id": "export.projection",
+          "title": "Projection metadata helper export",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "exports",
+          "docsUrl": "https://github.com/async/api-contract#subpath-exports"
+        },
+        {
+          "id": "export.schema",
+          "title": "Schema metadata helper export",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "exports",
+          "docsUrl": "https://github.com/async/api-contract#subpath-exports"
+        },
+        {
           "id": "export.types",
           "title": "Type-only contract helper export",
           "releaseTag": "public",
@@ -158,6 +176,30 @@
           "stability": "stable",
           "lifecycle": "active",
           "group": "impact"
+        },
+        {
+          "id": "runtime.generators.generateApiSurfaceMarkdown",
+          "title": "API surface markdown generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.generators.generateMachineCliRouter",
+          "title": "Machine CLI router descriptor generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.generators.generateTypeScriptClient",
+          "title": "TypeScript client source generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
         },
         {
           "id": "runtime.interface.bindApiHandlers",
@@ -272,6 +314,62 @@
           "group": "manifest"
         },
         {
+          "id": "runtime.projection.defineCliProjection",
+          "title": "CLI projection declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "runtime.projection.defineDashboardProjection",
+          "title": "Dashboard projection declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "runtime.projection.defineProjectionSet",
+          "title": "Projection set declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "runtime.schema.createSchemaFeature",
+          "title": "Schema feature derivation helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
+          "id": "runtime.schema.defineSchema",
+          "title": "Schema metadata declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
+          "id": "runtime.schema.jsonSchemaAdapter",
+          "title": "JSON Schema adapter helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
+          "id": "runtime.schema.standardSchemaAdapter",
+          "title": "Standard Schema adapter helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
           "id": "runtime.surface.createSurface",
           "title": "Normalized API surface creation",
           "releaseTag": "public",
@@ -353,6 +451,14 @@
           "group": "generators"
         },
         {
+          "id": "type.DefineSchemaInput",
+          "title": "Schema metadata declaration input type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
           "id": "type.Expect",
           "title": "Compile-time expectation helper",
           "releaseTag": "public",
@@ -376,6 +482,14 @@
           "stability": "stable",
           "lifecycle": "active",
           "group": "interface"
+        },
+        {
+          "id": "type.MachineCliRouterDescriptor",
+          "title": "Machine CLI router descriptor type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
         },
         {
           "id": "type.OperationHandler",
@@ -416,7 +530,39 @@
           "releaseTag": "public",
           "stability": "stable",
           "lifecycle": "active",
-          "group": "interface"
+          "group": "schema"
+        },
+        {
+          "id": "type.SchemaMetadata",
+          "title": "Schema metadata type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
+          "id": "type.ProjectionSet",
+          "title": "Projection set type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "type.StandardSchemaLike",
+          "title": "Standard Schema-like adapter input type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "schema"
+        },
+        {
+          "id": "type.TypeScriptClientOptions",
+          "title": "TypeScript client generator options type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
         },
         {
           "id": "type.Surface",
@@ -528,7 +674,9 @@
         "bin.api-contract",
         "export.generators",
         "export.interface",
+        "export.projection",
         "export.root",
+        "export.schema",
         "export.types"
       ]
     },
@@ -556,6 +704,9 @@
         "runtime.diff.diffPackageContracts",
         "runtime.hash.surfaceHash",
         "runtime.impact.createImpactReport",
+        "runtime.generators.generateApiSurfaceMarkdown",
+        "runtime.generators.generateMachineCliRouter",
+        "runtime.generators.generateTypeScriptClient",
         "runtime.interface.bindApiHandlers",
         "runtime.interface.createOperationFeatureCatalog",
         "runtime.interface.createOperationSurface",
@@ -570,6 +721,13 @@
         "runtime.interface.serializeApiInterface",
         "runtime.ledger.renderApiSurfaceMarkdown",
         "runtime.manifest.parsePackageContractManifest",
+        "runtime.projection.defineCliProjection",
+        "runtime.projection.defineDashboardProjection",
+        "runtime.projection.defineProjectionSet",
+        "runtime.schema.createSchemaFeature",
+        "runtime.schema.defineSchema",
+        "runtime.schema.jsonSchemaAdapter",
+        "runtime.schema.standardSchemaAdapter",
         "runtime.surface.createSurface",
         "runtime.usage.scanUsageTarget"
       ]
@@ -585,16 +743,22 @@
         "type.CliDescriptor",
         "type.ContractRef",
         "type.DashboardManifest",
+        "type.DefineSchemaInput",
         "type.Expect",
         "type.InferOperationInput",
         "type.InferOperationOutput",
+        "type.MachineCliRouterDescriptor",
         "type.OperationHandler",
         "type.OperationSpec",
         "type.PackageContractManifest",
+        "type.ProjectionSet",
         "type.RequiresContract",
         "type.SchemaAdapter",
+        "type.SchemaMetadata",
+        "type.StandardSchemaLike",
         "type.Surface",
-        "type.SupportsContract"
+        "type.SupportsContract",
+        "type.TypeScriptClientOptions"
       ]
     }
   ],

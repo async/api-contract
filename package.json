@@ -17,9 +17,17 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
     "./interface": {
       "types": "./dist/interface.d.ts",
       "default": "./dist/interface.js"
+    },
+    "./projection": {
+      "types": "./dist/projection.d.ts",
+      "default": "./dist/projection.js"
     },
     "./generators": {
       "types": "./dist/generators.d.ts",

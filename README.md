@@ -1,8 +1,9 @@
 # @async/api-contract
 
-`@async/api-contract` lets a package publish one API source that can drive
-programmatic handlers, generated CLIs, generated local dashboards, compatibility
-ledgers, and impact reports.
+`@async/api-contract` is the metadata contract layer for packages and local
+tools. It lets maintainers describe multiple API concerns from one source, then
+emit stable artifacts for compatibility review, programmatic invocation, CLIs,
+local dashboards, evidence, and generated clients.
 
 The package still treats compatibility as feature-based:
 
@@ -10,9 +11,9 @@ The package still treats compatibility as feature-based:
 required.features subset_of supported.features
 ```
 
-Package versions, release tags, docs text, README prose, and dashboard layout
-hints do not decide compatibility unless the package maps them to explicit
-contract-bearing features.
+Package versions, release tags, docs text, README prose, prompt copy, and
+dashboard layout hints do not decide compatibility unless a package maps them
+to explicit contract-bearing feature ids.
 
 ## What This Solves
 
@@ -20,87 +21,216 @@ Local developer tools often grow the same behavior in several places:
 
 - a programmatic API for tests and library users;
 - a CLI for humans;
-- a JSON command surface for automation;
-- a dashboard for local inspection;
+- a machine JSON command surface for automation and local dashboards;
+- schema metadata for validation, prompts, and forms;
 - docs that explain the workflow;
+- reports and receipts that prove what happened;
 - compatibility ledgers that show what changed.
 
-When those surfaces are maintained separately, they drift. `@async/api-contract`
-keeps the core behavior behind programmatic handlers and makes CLI and dashboard
-surfaces projections of the same operation contract.
+When those surfaces are maintained separately, they drift.
+`@async/api-contract` keeps behavior behind programmatic handlers and makes CLI,
+dashboard, schema, and docs surfaces projections of one metadata source.
 
 ## Core Idea
 
-Define operations once:
+Describe the API once:
 
-- operation id, title, lifecycle, and feature id;
-- input and output schemas;
-- local side effects;
-- stable errors;
-- receipt and report paths;
-- docs references;
-- CLI hints;
-- dashboard hints.
+- feature catalogs and compatibility surfaces;
+- schema metadata;
+- callable operations;
+- CLI projections;
+- dashboard projections;
+- effects, receipts, reports, and transcripts;
+- docs references.
 
-Then generate the review and adapter material:
+Then generate review and adapter artifacts:
 
 - `api-contract.json`;
 - `API_SURFACE.md`;
 - CLI descriptors;
 - dashboard manifests;
-- TypeScript-friendly handler bindings.
+- typed client source;
+- machine CLI router descriptors.
 
-The generated CLI and dashboard stay thin. They parse input, call the bound
-operation, format the result, and surface receipts. They do not own business
-logic.
+Generators emit descriptors, routers, manifests, and docs. They do not execute
+business logic.
 
-## When To Use It
+## Choose Your Goal
 
-Use `@async/api-contract` when a package needs a stable API surface across more
-than one consumer.
+### Compatibility
 
-Good fits:
+Use feature catalogs and surfaces when the goal is to publish what a package
+supports, requires, emits, or consumes.
 
-- local-first developer tools;
-- project generators;
-- migration tools;
-- fleet or multi-repo maintenance tools;
-- verification tools;
-- packages with both programmatic and CLI APIs;
-- tools with a local dashboard that should call a machine-stable CLI.
+Use it when:
 
-Do not use it as a replacement for host-specific validation. Host packages
-still own their domain rules, filesystem checks, permissions, and execution
-policy.
+- you need release-review ledgers;
+- consumers need impact checks;
+- capability compatibility should not depend on package versions.
+
+It emits:
+
+- normalized surfaces;
+- stable surface hashes;
+- `API_SURFACE.md`;
+- diff and impact reports.
+
+It deliberately does not own:
+
+- host-specific validation;
+- release policy;
+- runtime behavior.
+
+### Schema Metadata
+
+Use schema metadata when the goal is to describe input/output shapes for
+validation, prompts, forms, tables, or metadata inspection.
+
+Use it when:
+
+- a CLI needs prompt choices or validation;
+- a dashboard needs a form or table;
+- a package wants to publish shape metadata without choosing one schema library.
+
+It emits:
+
+- JSON Schema output;
+- defaults;
+- examples;
+- field help text;
+- UI-safe widget hints;
+- prompt-safe input hints;
+- optional schema feature ids.
+
+It deliberately does not own:
+
+- storage engines;
+- host-specific domain rules;
+- one required validator library.
+
+### Programmatic Interface
+
+Use operation contracts when the goal is to expose callable API behavior.
+
+Use it when:
+
+- tests, CLIs, dashboards, and generated clients should call one handler path;
+- removing an operation should appear in compatibility diffs;
+- local side effects need to be visible before execution.
+
+It emits:
+
+- operation metadata;
+- operation-derived feature surfaces;
+- handler bindings;
+- standard invocation helpers.
+
+It deliberately does not own:
+
+- business logic;
+- permissions enforcement;
+- process or filesystem policy.
+
+### Generated CLI
+
+Use CLI projections when the goal is to generate human commands and machine JSON
+endpoints from operation or schema metadata.
+
+Use it when:
+
+- humans need ergonomic commands;
+- dashboards and automation need stable JSON commands;
+- interactive prompts should be metadata-driven.
+
+It emits:
+
+- command paths;
+- args and flags;
+- prompt metadata;
+- output mode metadata;
+- machine JSON command mapping;
+- exit-code metadata.
+
+It deliberately does not own:
+
+- operation handlers;
+- terminal scraping;
+- dashboard state.
+
+### Generated Dashboard
+
+Use dashboard projections when the goal is to generate a local inspection UI
+from the same metadata.
+
+Use it when:
+
+- a local dashboard needs forms, tables, details, summaries, or logs;
+- the dashboard should call a machine CLI instead of duplicating behavior;
+- users need to inspect receipts and reports.
+
+It emits:
+
+- operation groups;
+- form/table/detail view metadata;
+- result summaries;
+- empty states;
+- local transport config.
+
+It deliberately does not own:
+
+- durable state authority;
+- business logic;
+- long-lived service state.
+
+### Evidence And Receipts
+
+Use effects and receipts when the goal is to make local work auditable.
+
+Use it when:
+
+- operations write files;
+- operations spawn processes;
+- tools produce reports, transcripts, or verification logs;
+- users need durable evidence beyond terminal output.
+
+It emits:
+
+- effect lists;
+- receipt path templates;
+- report/transcript/verification metadata.
+
+It deliberately does not own:
+
+- secret handling;
+- transcript storage policy;
+- verification semantics for a host package.
 
 ## Concepts
 
-### Feature surfaces
+### Feature Surfaces
 
 A `Surface` is normalized runtime data with sorted unique feature ids and a
 stable hash. Compatibility is checked by comparing required features with
 supported features.
 
+### Schema Metadata
+
+A schema is a portable description of shape plus optional generation hints.
+Schemas can provide JSON Schema, defaults, examples, enum labels, field help
+text, prompt hints, and widget hints.
+
 ### Operations
 
 An operation is a callable unit such as `project.init`, `project.verify`, or
-`project.report`. Operations can derive compatibility features like
-`operation.project.init`, so removing a callable capability appears in normal
-diff and impact workflows.
-
-### Schemas
-
-Schemas describe operation input and output. `@async/api-contract` uses a small
-schema adapter interface instead of forcing one validator. JSON Schema, Zod,
-Valibot, TypeBox, or a custom parser can all feed the same contract as long as
-they expose parse and JSON-schema output.
+`project.report`. Operations can derive compatibility features such as
+`operation.project.init`, so removed callable capabilities appear in normal diff
+and impact workflows.
 
 ### Projections
 
-Projections describe generated surfaces. A CLI projection names command paths,
-flags, positional arguments, and interactive prompts. A dashboard projection
-names form, table, detail, or summary views. Projections do not execute domain
-logic.
+Projections describe user-facing surfaces. A CLI projection names command paths,
+flags, positional arguments, prompts, output modes, and machine JSON mapping. A
+dashboard projection names form, table, detail, summary, or log views.
 
 ### Handlers
 
@@ -111,15 +241,13 @@ dashboard transports all invoke handlers through the same operation id.
 ### Effects
 
 Effects document what an operation may do: read files, write files, spawn
-processes, make network requests, run an agent, verify browser output, write to
-Git, or install packages. Effects make local side effects visible before a CLI
-or dashboard runs an operation.
+processes, make network requests, run agent-style workers, verify browser
+output, write to Git, or install packages.
 
 ### Receipts
 
 Receipts describe durable evidence written by operations, such as reports,
-transcripts, verification logs, or JSON receipts. They make non-trivial local
-work auditable instead of only printing terminal output.
+transcripts, verification logs, or JSON receipts.
 
 ### Docs
 
@@ -127,104 +255,11 @@ Docs references attach bounded source material to operations: README sections,
 spec paths, URLs, short summaries, and optional hashes. Full markdown embedding
 should be opt-in and size-limited.
 
-### Compatibility hashes
+### Compatibility Hashes
 
 Feature ids decide compatibility hashes. Labels, README summaries, CLI prompt
 text, and dashboard layout hints stay outside compatibility unless the package
 deliberately publishes feature ids for them.
-
-## Tooling Overview
-
-### `defineApiContract()`
-
-Defines the maintained API source for a package: package name, operation list,
-docs, and contract id.
-
-You want this because every generated surface needs the same source of truth.
-
-### `defineOperation()`
-
-Normalizes one callable operation with schemas, lifecycle, effects, errors,
-receipts, CLI metadata, and dashboard metadata.
-
-You want this because a package can review one operation object instead of
-comparing disconnected CLI code, dashboard forms, and docs.
-
-### `defineJsonSchema()`
-
-Wraps JSON Schema with optional parsing, defaults, examples, and descriptions.
-
-You want this because generated CLI prompts and dashboard forms need portable
-schema data, while programmatic invocation still needs runtime parsing.
-
-### `bindApiHandlers()`
-
-Connects operation metadata to implementation functions.
-
-You want this because CLI and dashboard code can stay thin. They call operation
-handlers instead of reimplementing workflow logic.
-
-### `invokeOperation()`
-
-Invokes one bound operation by id, parses input, runs the handler, and parses
-output.
-
-You want this because tests, generated clients, machine CLI commands, and local
-dashboards need one invocation path.
-
-### `createOperationSurface()`
-
-Converts operations into a normal compatibility `Surface`.
-
-You want this because removed or renamed operations should appear in existing
-feature diff and impact reports.
-
-### `generatePackageManifest()`
-
-Emits `api-contract.json` with existing catalogs and surfaces plus an
-`x-interface` operation section.
-
-You want this because current `api-contract.package.v1` users keep working
-while richer interface metadata becomes available to generators.
-
-### `renderApiSurfaceMarkdown()`
-
-Renders `API_SURFACE.md` from a manifest, including feature catalogs, surfaces,
-and operation metadata when `x-interface` is present.
-
-You want this because maintainers need a deterministic human ledger for review.
-
-### `generateCliDescriptor()`
-
-Produces a CLI descriptor with human command paths and machine-stable JSON
-commands.
-
-You want this because humans and dashboards need different CLI surfaces:
-
-```sh
-workspace-tool project init
-workspace-tool api manifest --json
-workspace-tool api describe project.init --json
-workspace-tool api invoke project.init --input-json '{"name":"Acme Console"}'
-```
-
-The dashboard should call the machine API commands. It should not scrape human
-interactive prompt output.
-
-### `generateDashboardManifest()`
-
-Produces local dashboard metadata: operation groups, forms, result views,
-schemas, effects, and the CLI transport command for each operation.
-
-You want this because a local dashboard can be generated from the same contract
-without becoming the source of truth for project state.
-
-### `renderInterfaceMarkdown()`
-
-Renders a compact operation-focused markdown document.
-
-You want this when a package needs interface documentation without the full
-feature ledger.
 
 ## Quick Start
 
@@ -233,154 +268,372 @@ pnpm add @async/api-contract
 ```
 
 ```ts
-import {
-  bindApiHandlers,
-  defineApiContract,
-  defineJsonSchema,
-  generateCliDescriptor,
-  generateDashboardManifest,
-  generatePackageManifest,
-  invokeOperation
-} from "@async/api-contract";
+import { defineApiContract, defineOperation } from "@async/api-contract/interface";
+import { jsonSchemaAdapter } from "@async/api-contract/schema";
+import { generateCliDescriptor, generateDashboardManifest } from "@async/api-contract/generators";
 
-const initInput = defineJsonSchema<{ name: string; directory?: string }>({
+const projectInitInput = jsonSchemaAdapter<{ name: string }>({
   type: "object",
   required: ["name"],
   properties: {
-    name: { type: "string" },
-    directory: { type: "string", default: "." }
+    name: { type: "string" }
   }
 }, {
   parse(value) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       throw new Error("input must be an object");
     }
-    const input = value as { name?: unknown; directory?: unknown };
+    const input = value as { name?: unknown };
     if (typeof input.name !== "string") throw new Error("name must be a string");
-    return {
-      name: input.name,
-      directory: typeof input.directory === "string" ? input.directory : "."
-    };
-  },
-  defaults: () => ({ directory: "." }),
-  examples: () => [{ name: "Acme Console", directory: "./acme-console" }]
+    return { name: input.name };
+  }
 });
 
-const resultSchema = defineJsonSchema<{ ok: boolean; reportPath: string }>({
+const projectInitOutput = jsonSchemaAdapter<{ ok: boolean }>({
   type: "object",
-  required: ["ok", "reportPath"],
+  required: ["ok"],
   properties: {
-    ok: { type: "boolean" },
-    reportPath: { type: "string" }
+    ok: { type: "boolean" }
   }
 });
 
 const contract = defineApiContract({
-  packageName: "@acme/workspace-tool",
-  title: "Workspace Tool",
-  docs: [{
-    id: "readme",
-    path: "README.md",
-    summary: "Explains workspace operations and generated surfaces."
-  }],
-  operations: {
-    "project.init": {
+  packageName: "workspace-tool",
+  operations: [
+    defineOperation({
+      id: "project.init",
       title: "Initialize project",
-      description: "Create a local project workspace.",
-      input: initInput,
-      output: resultSchema,
+      input: projectInitInput,
+      output: projectInitOutput,
       effects: ["filesystem.write"],
-      docs: ["readme"],
-      receipts: [{ kind: "report", pathTemplate: "reports/init-{timestamp}.md" }],
-      cli: { command: "project init", interactive: true },
-      dashboard: { group: "Project", view: "form", resultView: "summary" }
-    },
-    "project.verify": {
-      title: "Verify project",
-      description: "Check the local project and write a report.",
-      output: resultSchema,
-      effects: ["filesystem.read"],
-      cli: { command: "project verify" },
-      dashboard: { group: "Project", view: "summary", resultView: "log" }
-    }
-  }
+      cli: {
+        command: "init",
+        interactive: true
+      },
+      dashboard: {
+        group: "Project",
+        view: "form",
+        resultView: "summary",
+        transport: "machine-cli"
+      }
+    })
+  ]
 });
 
-const api = bindApiHandlers(contract, {
-  "project.init": async (input) => ({
-    ok: true,
-    reportPath: `${input.directory}/reports/init.md`
-  }),
-  "project.verify": async () => ({
-    ok: true,
-    reportPath: "reports/verify.md"
-  })
-});
-
-const result = await invokeOperation(api, "project.init", {
-  name: "Acme Console"
-});
-
-console.log(result.reportPath);
-console.log(generatePackageManifest(contract));
 console.log(generateCliDescriptor(contract, { binaryName: "workspace-tool" }));
 console.log(generateDashboardManifest(contract, { binaryName: "workspace-tool" }));
 ```
 
-## Generated CLI
+## Generating From Metadata
 
-A generated CLI should have two layers.
+`@async/api-contract` can generate user-facing surfaces from either:
 
-Human commands are optimized for developers:
+- a programmatic API contract;
+- schema metadata;
+- both together.
 
-```sh
-workspace-tool project init
-workspace-tool project verify
-workspace-tool project report
+### Generating A CLI
+
+A CLI can be generated from operation metadata:
+
+```ts
+const contract = defineApiContract({
+  packageName: "workspace-tool",
+  operations: [
+    defineOperation({
+      id: "project.init",
+      title: "Initialize project",
+      input: projectInitInput,
+      output: projectInitOutput,
+      effects: ["filesystem.write"],
+      cli: {
+        command: "init",
+        interactive: true
+      }
+    })
+  ]
+});
 ```
 
-Machine commands are optimized for tools:
+Generated human CLI:
+
+```sh
+workspace-tool init
+```
+
+Generated machine CLI:
 
 ```sh
 workspace-tool api manifest --json
-workspace-tool api operations --json
 workspace-tool api describe project.init --json
-workspace-tool api invoke project.init --input-json '{"name":"Acme Console"}'
+workspace-tool api invoke project.init --input-json '{"name":"Acme"}'
 ```
 
-The machine layer is the local transport for dashboards and automation. It must
-return stable JSON and should not depend on prompt text, terminal colors, or
-interactive formatting.
+Rule: dashboards and automation call the machine JSON API, not interactive
+prompt output.
 
-## Generated Dashboard
+A CLI can also be generated from schema metadata alone for tools that only need
+validation, inspection, or form-like commands.
 
-`generateDashboardManifest()` produces a manifest a local dashboard can render:
+### Generating A Dashboard
 
-- operation groups;
-- form, summary, table, detail, or log views;
-- input and output schemas;
-- local effects;
-- CLI transport commands.
-
-The dashboard should inspect local state and invoke the machine CLI. It should
-not become the durable state authority, and it should not contain domain
-business logic.
-
-## Compatibility Workflow
-
-Operation contracts feed the existing feature workflow:
+A dashboard can be generated from the same metadata:
 
 ```ts
-import {
-  createOperationSurface,
-  diffPackageContracts,
-  generatePackageManifest
-} from "@async/api-contract";
+dashboard: {
+  group: "Project",
+  view: "form",
+  resultView: "summary",
+  transport: "machine-cli"
+}
 ```
 
-If `project.verify` is removed, `operation.project.verify` disappears from the
-operation surface. Existing `api-contract diff` and impact reports can flag that
-as a capability change.
+The generated dashboard manifest describes:
+
+- available operations;
+- input forms;
+- result views;
+- table/detail views;
+- local invoke command;
+- receipt and report locations.
+
+Dashboard rule: the dashboard is a projection. It must not become the durable
+state authority.
+
+### From Schema Metadata
+
+Schema-only dashboards or CLIs are valid.
+
+Examples:
+
+- render a form from JSON Schema;
+- render a table from output schema;
+- generate prompt choices from enums;
+- generate validation commands;
+- generate metadata inspection views.
+
+This is useful for later host packages, but the core concept stays generic.
+
+### From Programmatic API
+
+Operation-first tools define handlers and invoke them:
+
+```ts
+import { bindApiHandlers } from "@async/api-contract/interface";
+
+const api = bindApiHandlers(contract, {
+  "project.init": async (input, context) => {
+    return createProject(input, context);
+  }
+});
+```
+
+Generated CLI and dashboard surfaces both route through the same operation
+handler.
+
+## Tooling Overview
+
+### `defineFeatureCatalog()`
+
+Declares compatibility features for an API concern.
+
+Use it when you want a reviewed feature inventory with release and lifecycle
+metadata.
+
+It emits a normalized feature catalog. It does not execute or validate runtime
+behavior.
+
+### `createSurface()`
+
+Creates a normalized feature surface with a stable hash.
+
+Use it when you need supported, required, emitted, or consumed feature lists.
+
+It emits sorted feature ids and a hash. It does not decide release policy.
+
+### `defineSchema()`
+
+Defines generic schema metadata.
+
+Use it when a shape should be reusable across validation, prompts, forms, and
+compatibility features.
+
+It emits schema metadata. It does not enforce host-specific domain rules.
+
+### `jsonSchemaAdapter()`
+
+Wraps JSON Schema with optional parsing, defaults, examples, and descriptions.
+
+Use it when generators need portable schema data and invocation still needs
+runtime parsing.
+
+It emits a schema adapter. It does not require a validation library.
+
+### `standardSchemaAdapter()`
+
+Wraps a Standard Schema-style validator.
+
+Use it when a package already exposes a Standard Schema-compatible object.
+
+It emits a schema adapter. The current helper only supports synchronous parsing.
+
+### `createSchemaFeature()`
+
+Maps schema metadata to a compatibility feature.
+
+Use it when changing or removing a schema should be visible in diff and impact
+workflows.
+
+It emits a `FeatureSpec`. It does not automatically decide whether a schema is
+contract-bearing.
+
+### `defineApiContract()`
+
+Defines the maintained operation source for a package.
+
+Use it when operations, schemas, docs, and projections should serialize into
+one interface manifest.
+
+It emits an `api-contract.interface.v1` structure. It does not bind handlers.
+
+### `defineOperation()`
+
+Normalizes one callable operation with schemas, lifecycle, effects, errors,
+receipts, CLI metadata, and dashboard metadata.
+
+Use it when a callable capability should be programmatically invoked or mapped
+to generated surfaces.
+
+It emits operation metadata. It does not contain business logic.
+
+### `bindApiHandlers()`
+
+Connects operation metadata to implementation functions.
+
+Use it when tests, CLIs, dashboards, and generated clients should share one
+handler path.
+
+It emits a bound API. It does not generate a CLI by itself.
+
+### `invokeOperation()`
+
+Invokes one bound operation by id, parses input, runs the handler, and parses
+output.
+
+Use it as the common runtime path for generated adapters.
+
+It emits the operation result. It does not own retries, permissions, or
+transport policy.
+
+### `createOperationSurface()`
+
+Converts operations into a compatibility surface.
+
+Use it when removed or renamed operations should appear in existing feature
+diffs and impact reports.
+
+It emits a `Surface`. It does not decide whether schema or projection changes
+are breaking.
+
+### `defineCliProjection()`
+
+Defines command metadata for a generated CLI.
+
+Use it when operation or schema metadata should become commands, flags, prompts,
+machine JSON endpoints, output modes, or exit-code mappings.
+
+It emits CLI projection metadata. It does not parse process arguments.
+
+### `defineDashboardProjection()`
+
+Defines local dashboard metadata.
+
+Use it when operation or schema metadata should become forms, tables, details,
+summaries, empty states, or local transport calls.
+
+It emits dashboard projection metadata. It does not store durable dashboard
+state.
+
+### `defineProjectionSet()`
+
+Groups CLI and dashboard projections.
+
+Use it when a package wants to serialize projections independently from the
+operations that reference them.
+
+It emits a projection set. It does not generate files.
+
+### `generatePackageManifest()`
+
+Emits `api-contract.json` with existing catalogs and surfaces plus
+`x-interface` metadata.
+
+Use it when one source should produce the package manifest.
+
+It emits a manifest. It does not run validation outside the metadata shape.
+
+### `generateApiSurfaceMarkdown()`
+
+Renders `API_SURFACE.md` from a manifest.
+
+Use it when maintainers need deterministic human review output.
+
+It emits markdown. It does not infer hidden runtime behavior.
+
+### `generateCliDescriptor()`
+
+Produces a CLI descriptor with human commands and machine-stable JSON commands.
+
+Use it when a CLI should be generated from operation and schema metadata.
+
+It emits a descriptor. It does not execute business logic.
+
+### `generateDashboardManifest()`
+
+Produces local dashboard metadata.
+
+Use it when a dashboard should render operations, forms, result views, and local
+invoke commands from the same metadata.
+
+It emits a dashboard manifest. It does not become state authority.
+
+### `generateTypeScriptClient()`
+
+Produces deterministic TypeScript client source for operation invocation.
+
+Use it when consumers need generated client code instead of hand-written
+wrappers.
+
+It emits source text. It does not execute the client.
+
+### `generateMachineCliRouter()`
+
+Produces a machine CLI router descriptor.
+
+Use it when dashboards and automation need stable `api describe` and
+`api invoke` routes.
+
+It emits route metadata. It does not scrape human CLI output.
+
+## Example Matrix
+
+All examples are neutral and intentionally package-agnostic.
+
+| Example | Metadata Used | Emitted Artifacts |
+| --- | --- | --- |
+| compatibility only | feature catalogs and surfaces | `api-contract.json`, `API_SURFACE.md`, diffs |
+| schema metadata only | `defineSchema()`, schema adapters | schema features, forms, validation descriptors |
+| programmatic API only | operations and handlers | bound API, operation invocation |
+| programmatic API plus CLI | operations, handlers, CLI projections | CLI descriptor, machine CLI routes |
+| programmatic API plus dashboard | operations, handlers, dashboard projections | dashboard manifest, local invoke metadata |
+| schema metadata plus CLI | schemas and CLI projections | validation commands, prompt metadata |
+| schema metadata plus dashboard | schemas and dashboard projections | forms, table/detail metadata |
+| full stack | schemas, operations, CLI, dashboard, receipts | manifest, ledger, descriptors, client source |
+
+Use names such as `workspace-tool`, `project-console`, and `acme-tool` in
+public examples.
+
+## Compatibility Workflow
 
 ```sh
 api-contract check --manifest api-contract.json
@@ -398,49 +651,6 @@ repo checks only for consumers that actually use changed features.
 `usage scan` is a line-oriented source preflight. It records dependency and
 feature-string evidence, but it is not a full parser or proof of semantic usage.
 
-## Type-Only Contracts
-
-Use `@async/api-contract/types` for app code and virtual imports that should
-express a contract without emitting runtime JavaScript.
-
-```ts
-import type {
-  AssertCompatible,
-  Expect,
-  RequiresContract,
-  SupportsContract
-} from "@async/api-contract/types";
-
-type UsesPipeline = RequiresContract<"@async/pipeline.declaration">;
-
-type UsesShellStep = RequiresContract<
-  "@async/pipeline.declaration",
-  "task.run" | "step.shell"
->;
-
-type HostSupport = SupportsContract<
-  "@async/pipeline.declaration",
-  "task.run" | "step.shell" | "agent.stdoutTo"
->;
-
-type Check = Expect<AssertCompatible<UsesShellStep, HostSupport>>;
-```
-
-Use `@async/api-contract/interface` for operation-specific types and helpers.
-
-## Release And Stability Tags
-
-Catalog features can carry API Extractor-style maturity metadata:
-
-- `public`
-- `beta`
-- `alpha`
-- `internal`
-
-Project-facing stability labels such as `stable`, `preview`, `experimental`,
-`generated`, `dev-only`, and `internal` are docs and policy metadata. They do
-not affect `surfaceHash()`.
-
 ## Design Rules
 
 - Keep business logic in programmatic handlers.
@@ -451,8 +661,35 @@ not affect `surfaceHash()`.
 - Use bounded docs references instead of embedding unbounded markdown by
   default.
 - Keep host-specific validation in the host package.
-- Preserve the existing `api-contract.package.v1` manifest format; put richer
-  interface metadata under `x-interface`.
+- Preserve the existing `api-contract.package.v1` manifest envelope.
+- Put richer generation metadata under `x-interface`.
+- Keep this package generic. Host packages may map their own domain concepts
+  into schema, operation, CLI, dashboard, and evidence metadata later.
+
+## Subpath Exports
+
+```txt
+@async/api-contract
+@async/api-contract/schema
+@async/api-contract/interface
+@async/api-contract/projection
+@async/api-contract/generators
+@async/api-contract/types
+```
+
+`@async/api-contract` owns the stable compatibility core: feature catalogs,
+surfaces, hashes, manifest parsing, diffing, impact reports, usage scan, and API
+surface markdown rendering.
+
+`@async/api-contract/schema` owns generic schema metadata.
+
+`@async/api-contract/interface` owns programmatic operation contracts.
+
+`@async/api-contract/projection` owns CLI and dashboard projection metadata.
+
+`@async/api-contract/generators` owns deterministic artifact generators.
+
+`@async/api-contract/types` owns type-only compatibility helpers.
 
 ## Maintainer Workflow
 
