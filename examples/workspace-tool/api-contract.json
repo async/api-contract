@@ -1,0 +1,59 @@
+{
+  "format": "api-contract.package.v1",
+  "packageName": "workspace-tool",
+  "catalogs": [
+    {
+      "format": "api-contract.catalog.v1",
+      "contractId": "workspace-tool.package",
+      "title": "Workspace Tool Package Surface",
+      "features": [
+        {
+          "id": "cli.api.invoke",
+          "title": "Machine JSON invoke command",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "cli"
+        },
+        {
+          "id": "export.root",
+          "title": "Root package export",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "package-exports"
+        },
+        {
+          "id": "operation.project.init",
+          "title": "Project init operation",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "operations"
+        },
+        {
+          "id": "operation.project.verify",
+          "title": "Project verify operation",
+          "releaseTag": "beta",
+          "stability": "preview",
+          "lifecycle": "active",
+          "group": "operations"
+        }
+      ]
+    }
+  ],
+  "supported": [
+    {
+      "format": "api-contract.surface.v1",
+      "contractId": "workspace-tool.package",
+      "features": ["cli.api.invoke", "export.root", "operation.project.init", "operation.project.verify"]
+    }
+  ],
+  "required": [
+    {
+      "format": "api-contract.surface.v1",
+      "contractId": "workspace-tool.package",
+      "features": ["export.root", "operation.project.init"]
+    }
+  ]
+}

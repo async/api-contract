@@ -1,13 +1,13 @@
 {
-  "subject": "npm:@async/claims-pipeline@1.0.0",
+  "subject": "npm:workspace-tool@1.0.0",
   "claim": "requires-api-contract",
   "surface": {
     "format": "api-contract.surface.v1",
-    "contractId": "@async/pipeline.declaration",
-    "features": ["step.shell", "task.run"],
-    "hash": "sha256:6ed689db2412e486f7b1c57ba255d8ab244e9d1a801ebc143049449bc4b21a95"
+    "contractId": "workspace-tool.package",
+    "features": ["export.root", "operation.project.init"],
+    "hash": "sha256:5e8572366a476f17a9d6d317a13843b4e0dc4a0b1d094b77d325957428ae90e9"
   },
   "evidence": "published-manifest",
-  "issuer": "npm:@async/claims-pipeline",
+  "issuer": "npm:workspace-tool",
   "issuedAt": "2026-06-14T00:00:00Z"
 }

@@ -641,7 +641,7 @@ api-contract ledger --manifest api-contract.json --out API_SURFACE.md
 api-contract ledger --manifest api-contract.json --check API_SURFACE.md
 api-contract diff --before old-api-contract.json --after api-contract.json
 api-contract impact --before old-api-contract.json --after api-contract.json --consumers consumers.json
-api-contract usage scan --target src --package-name @async/consumer --dependency @async/pipeline --catalog api-contract.json --out api-usage.json
+api-contract usage scan --target src --package-name acme-tool --dependency workspace-tool --catalog api-contract.json --out api-usage.json
 ```
 
 `impact` is intended as a cheap preflight for explicit many-repo impact runs.
