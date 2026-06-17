@@ -3,8 +3,8 @@
   "generator": "@async/pipeline",
   "config": "pipeline.ts",
   "workflow": ".github/workflows/async-pipeline.yml",
-  "hash": "sha256:c10b38dbd421483fb48333b7bcdb6b719a4de6df21875b35f09e49321e17d3b2",
-  "generatedAt": "2026-06-17T23:17:11.105Z",
+  "hash": "sha256:1e10ad02cdf29022576472e858d82b1e03ad0a3e1873a5f6dac00965f4cbbf96",
+  "generatedAt": "2026-06-17T23:20:25.787Z",
   "triggers": {
     "pull_request": {},
     "push": {
@@ -12,7 +12,11 @@
         "main"
       ]
     },
-    "release": {},
+    "release": {
+      "types": [
+        "published"
+      ]
+    },
     "workflow_dispatch": {}
   },
   "jobs": [
@@ -92,7 +96,7 @@
           "packages": "write"
         }
       },
-      "if": "(github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'publish') || (github.event_name == 'release')"
+      "if": "(github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'publish') || (github.event_name == 'release' && (github.event.action == 'published'))"
     },
     {
       "id": "release-doctor",
@@ -149,7 +153,7 @@
         "release"
       ],
       "env": {},
-      "if": "(github.event_name == 'pull_request') || (github.event_name == 'push' && (github.ref == 'refs/heads/main')) || (github.event_name == 'release')"
+      "if": "(github.event_name == 'pull_request') || (github.event_name == 'push' && (github.ref == 'refs/heads/main')) || (github.event_name == 'release' && (github.event.action == 'published'))"
     }
   ],
   "packageManager": "pnpm",
