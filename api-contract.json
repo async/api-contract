@@ -69,6 +69,24 @@
           "docsUrl": "https://github.com/async/api-contract#cli"
         },
         {
+          "id": "export.generators",
+          "title": "Generator helper export",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "exports",
+          "docsUrl": "https://github.com/async/api-contract#tooling-overview"
+        },
+        {
+          "id": "export.interface",
+          "title": "Operation interface helper export",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "exports",
+          "docsUrl": "https://github.com/async/api-contract#tooling-overview"
+        },
+        {
           "id": "export.root",
           "title": "Runtime API root export",
           "releaseTag": "public",
@@ -142,6 +160,102 @@
           "group": "impact"
         },
         {
+          "id": "runtime.interface.bindApiHandlers",
+          "title": "Operation handler binding helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.createOperationFeatureCatalog",
+          "title": "Operation feature catalog derivation",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.createOperationSurface",
+          "title": "Operation surface derivation",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.defineApiContract",
+          "title": "Operation contract declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.defineJsonSchema",
+          "title": "Portable JSON Schema adapter helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.defineOperation",
+          "title": "Operation declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.generateCliDescriptor",
+          "title": "CLI descriptor generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.interface.generateDashboardManifest",
+          "title": "Dashboard manifest generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.interface.generatePackageManifest",
+          "title": "Package manifest generator with interface metadata",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.interface.invokeOperation",
+          "title": "Bound operation invocation helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "runtime.interface.renderInterfaceMarkdown",
+          "title": "Operation interface markdown renderer",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.interface.serializeApiInterface",
+          "title": "Operation interface serializer",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
           "id": "runtime.ledger.renderApiSurfaceMarkdown",
           "title": "API surface markdown ledger renderer",
           "releaseTag": "public",
@@ -181,6 +295,14 @@
       "title": "Async API Contract Type Exports",
       "features": [
         {
+          "id": "type.ApiContract",
+          "title": "Operation contract type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
           "id": "type.AssertCompatible",
           "title": "Compile-time compatibility assertion",
           "releaseTag": "public",
@@ -188,6 +310,30 @@
           "lifecycle": "active",
           "group": "type-contracts",
           "docsUrl": "https://github.com/async/api-contract#type-only-contracts"
+        },
+        {
+          "id": "type.ApiHandlersFor",
+          "title": "Typed operation handler map helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "type.BoundApi",
+          "title": "Bound operation API type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "type.CliDescriptor",
+          "title": "Generated CLI descriptor type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
         },
         {
           "id": "type.ContractRef",
@@ -199,6 +345,14 @@
           "docsUrl": "https://github.com/async/api-contract#type-only-contracts"
         },
         {
+          "id": "type.DashboardManifest",
+          "title": "Generated dashboard manifest type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
           "id": "type.Expect",
           "title": "Compile-time expectation helper",
           "releaseTag": "public",
@@ -206,6 +360,38 @@
           "lifecycle": "active",
           "group": "type-contracts",
           "docsUrl": "https://github.com/async/api-contract#type-only-contracts"
+        },
+        {
+          "id": "type.InferOperationInput",
+          "title": "Operation input inference helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "type.InferOperationOutput",
+          "title": "Operation output inference helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "type.OperationHandler",
+          "title": "Operation handler type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
+        },
+        {
+          "id": "type.OperationSpec",
+          "title": "Callable operation specification type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
         },
         {
           "id": "type.PackageContractManifest",
@@ -223,6 +409,14 @@
           "lifecycle": "active",
           "group": "type-contracts",
           "docsUrl": "https://github.com/async/api-contract#type-only-contracts"
+        },
+        {
+          "id": "type.SchemaAdapter",
+          "title": "Operation schema adapter type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "interface"
         },
         {
           "id": "type.Surface",
@@ -332,6 +526,8 @@
       "contractId": "@async/api-contract.package-exports",
       "features": [
         "bin.api-contract",
+        "export.generators",
+        "export.interface",
         "export.root",
         "export.types"
       ]
@@ -360,6 +556,18 @@
         "runtime.diff.diffPackageContracts",
         "runtime.hash.surfaceHash",
         "runtime.impact.createImpactReport",
+        "runtime.interface.bindApiHandlers",
+        "runtime.interface.createOperationFeatureCatalog",
+        "runtime.interface.createOperationSurface",
+        "runtime.interface.defineApiContract",
+        "runtime.interface.defineJsonSchema",
+        "runtime.interface.defineOperation",
+        "runtime.interface.generateCliDescriptor",
+        "runtime.interface.generateDashboardManifest",
+        "runtime.interface.generatePackageManifest",
+        "runtime.interface.invokeOperation",
+        "runtime.interface.renderInterfaceMarkdown",
+        "runtime.interface.serializeApiInterface",
         "runtime.ledger.renderApiSurfaceMarkdown",
         "runtime.manifest.parsePackageContractManifest",
         "runtime.surface.createSurface",
@@ -370,11 +578,21 @@
       "format": "api-contract.surface.v1",
       "contractId": "@async/api-contract.type-exports",
       "features": [
+        "type.ApiContract",
+        "type.ApiHandlersFor",
         "type.AssertCompatible",
+        "type.BoundApi",
+        "type.CliDescriptor",
         "type.ContractRef",
+        "type.DashboardManifest",
         "type.Expect",
+        "type.InferOperationInput",
+        "type.InferOperationOutput",
+        "type.OperationHandler",
+        "type.OperationSpec",
         "type.PackageContractManifest",
         "type.RequiresContract",
+        "type.SchemaAdapter",
         "type.Surface",
         "type.SupportsContract"
       ]

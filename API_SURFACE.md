@@ -40,6 +40,8 @@ Contract: `@async/api-contract.package-exports`
 
 | Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
 | --- | --- | --- | --- | --- | --- | --- |
+| `export.generators` | Generator helper export | public | stable | active |  | [docs](https://github.com/async/api-contract#tooling-overview) |
+| `export.interface` | Operation interface helper export | public | stable | active |  | [docs](https://github.com/async/api-contract#tooling-overview) |
 | `export.root` | Runtime API root export | public | stable | active |  | [docs](https://github.com/async/api-contract#quick-start) |
 | `export.types` | Type-only contract helper export | public | stable | active |  | [docs](https://github.com/async/api-contract#type-only-contracts) |
 
@@ -71,6 +73,15 @@ Contract: `@async/api-contract.runtime`
 | --- | --- | --- | --- | --- | --- | --- |
 | `runtime.diff.diffPackageContracts` | Package manifest diff calculation | public | stable | active |  |  |
 
+### Generators
+
+| Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
+| --- | --- | --- | --- | --- | --- | --- |
+| `runtime.interface.generateCliDescriptor` | CLI descriptor generator | public | stable | active |  |  |
+| `runtime.interface.generateDashboardManifest` | Dashboard manifest generator | public | stable | active |  |  |
+| `runtime.interface.generatePackageManifest` | Package manifest generator with interface metadata | public | stable | active |  |  |
+| `runtime.interface.renderInterfaceMarkdown` | Operation interface markdown renderer | public | stable | active |  |  |
+
 ### Hash
 
 | Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
@@ -82,6 +93,19 @@ Contract: `@async/api-contract.runtime`
 | Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
 | --- | --- | --- | --- | --- | --- | --- |
 | `runtime.impact.createImpactReport` | Consumer impact report calculation | public | stable | active |  |  |
+
+### Interface
+
+| Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
+| --- | --- | --- | --- | --- | --- | --- |
+| `runtime.interface.bindApiHandlers` | Operation handler binding helper | public | stable | active |  |  |
+| `runtime.interface.createOperationFeatureCatalog` | Operation feature catalog derivation | public | stable | active |  |  |
+| `runtime.interface.createOperationSurface` | Operation surface derivation | public | stable | active |  |  |
+| `runtime.interface.defineApiContract` | Operation contract declaration helper | public | stable | active |  |  |
+| `runtime.interface.defineJsonSchema` | Portable JSON Schema adapter helper | public | stable | active |  |  |
+| `runtime.interface.defineOperation` | Operation declaration helper | public | stable | active |  |  |
+| `runtime.interface.invokeOperation` | Bound operation invocation helper | public | stable | active |  |  |
+| `runtime.interface.serializeApiInterface` | Operation interface serializer | public | stable | active |  |  |
 
 ### Ledger
 
@@ -110,6 +134,26 @@ Contract: `@async/api-contract.runtime`
 ## Async API Contract Type Exports
 
 Contract: `@async/api-contract.type-exports`
+
+### Generators
+
+| Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
+| --- | --- | --- | --- | --- | --- | --- |
+| `type.CliDescriptor` | Generated CLI descriptor type | public | stable | active |  |  |
+| `type.DashboardManifest` | Generated dashboard manifest type | public | stable | active |  |  |
+
+### Interface
+
+| Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
+| --- | --- | --- | --- | --- | --- | --- |
+| `type.ApiContract` | Operation contract type | public | stable | active |  |  |
+| `type.ApiHandlersFor` | Typed operation handler map helper | public | stable | active |  |  |
+| `type.BoundApi` | Bound operation API type | public | stable | active |  |  |
+| `type.InferOperationInput` | Operation input inference helper | public | stable | active |  |  |
+| `type.InferOperationOutput` | Operation output inference helper | public | stable | active |  |  |
+| `type.OperationHandler` | Operation handler type | public | stable | active |  |  |
+| `type.OperationSpec` | Callable operation specification type | public | stable | active |  |  |
+| `type.SchemaAdapter` | Operation schema adapter type | public | stable | active |  |  |
 
 ### Model
 
@@ -170,10 +214,10 @@ Contract: `@async/api-contract.package-metadata`
 | Contract | Hash | Features |
 | --- | --- | --- |
 | `@async/api-contract.cli` | `sha256:f3a9be69ec7b7f71c660c3e3395b5fe6619804248c16ad33fdba63ccc2d67a38` | `cli.check`, `cli.diff`, `cli.impact`, `cli.ledger`, `cli.usage.scan` |
-| `@async/api-contract.package-exports` | `sha256:5ba4fde2647d791f7e2b21e0a9809b820a80a5329ea43b036e856fd2d65eb9b3` | `bin.api-contract`, `export.root`, `export.types` |
+| `@async/api-contract.package-exports` | `sha256:e841aa296bac2a1c587a3ac90b81fade86738b6abb27794c0cbdef68e3603014` | `bin.api-contract`, `export.generators`, `export.interface`, `export.root`, `export.types` |
 | `@async/api-contract.package-metadata` | `sha256:d7f3950ee79a616b25eb90d0e9947dac55bd14688b4beffa5420154009448927` | `metadata.engines.node`, `metadata.files.ledger`, `metadata.files.manifest`, `metadata.license.mit`, `metadata.packageManager.pnpm`, `metadata.publish.public`, `metadata.repository.github`, `metadata.sideEffects.false` |
-| `@async/api-contract.runtime` | `sha256:f4d7605badb38a4ed10ec8c6c73aa6d41b653679700f95b25e2e77e5a8bdcf96` | `runtime.catalog.defineFeatureCatalog`, `runtime.compare.compareSurface`, `runtime.derive.deriveSurface`, `runtime.diff.diffPackageContracts`, `runtime.hash.surfaceHash`, `runtime.impact.createImpactReport`, `runtime.ledger.renderApiSurfaceMarkdown`, `runtime.manifest.parsePackageContractManifest`, `runtime.surface.createSurface`, `runtime.usage.scanUsageTarget` |
-| `@async/api-contract.type-exports` | `sha256:b4804f2bb2ac9ac2d159ae81e3150a25980dfbd5badf99e2f65d3ed1643563a8` | `type.AssertCompatible`, `type.ContractRef`, `type.Expect`, `type.PackageContractManifest`, `type.RequiresContract`, `type.SupportsContract`, `type.Surface` |
+| `@async/api-contract.runtime` | `sha256:77a038f27485d2304108af58d325efd61a38fc02e6f0025ef6b4453108def6e4` | `runtime.catalog.defineFeatureCatalog`, `runtime.compare.compareSurface`, `runtime.derive.deriveSurface`, `runtime.diff.diffPackageContracts`, `runtime.hash.surfaceHash`, `runtime.impact.createImpactReport`, `runtime.interface.bindApiHandlers`, `runtime.interface.createOperationFeatureCatalog`, `runtime.interface.createOperationSurface`, `runtime.interface.defineApiContract`, `runtime.interface.defineJsonSchema`, `runtime.interface.defineOperation`, `runtime.interface.generateCliDescriptor`, `runtime.interface.generateDashboardManifest`, `runtime.interface.generatePackageManifest`, `runtime.interface.invokeOperation`, `runtime.interface.renderInterfaceMarkdown`, `runtime.interface.serializeApiInterface`, `runtime.ledger.renderApiSurfaceMarkdown`, `runtime.manifest.parsePackageContractManifest`, `runtime.surface.createSurface`, `runtime.usage.scanUsageTarget` |
+| `@async/api-contract.type-exports` | `sha256:223790e194dabd22abefe9e2414b90a98764f7d278fd28fa2a63948bc72d7781` | `type.ApiContract`, `type.ApiHandlersFor`, `type.AssertCompatible`, `type.BoundApi`, `type.CliDescriptor`, `type.ContractRef`, `type.DashboardManifest`, `type.Expect`, `type.InferOperationInput`, `type.InferOperationOutput`, `type.OperationHandler`, `type.OperationSpec`, `type.PackageContractManifest`, `type.RequiresContract`, `type.SchemaAdapter`, `type.SupportsContract`, `type.Surface` |
 
 ## Required Surfaces
 

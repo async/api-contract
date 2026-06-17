@@ -9,3 +9,4 @@ export * from "./ledger.js";
 export * from "./diff.js";
 export * from "./impact.js";
 export * from "./usage-scan.js";
+export * from "./interface.js";

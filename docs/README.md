@@ -1,6 +1,6 @@
 # @async/api-contract
 
-`@async/api-contract` publishes semantic API surfaces, review ledgers, and impact checks for Async packages.
+`@async/api-contract` publishes semantic API surfaces, review ledgers, operation contracts, generated CLI/dashboard descriptors, and impact checks for Async packages.
 
 ## Maintainer tasks
 
@@ -18,6 +18,13 @@ pnpm run release:check
 ```sh
 pnpm add @async/api-contract
 ```
+
+## Product model
+
+- Define one operation contract with `defineApiContract()` and `defineOperation()`.
+- Bind programmatic handlers with `bindApiHandlers()`.
+- Generate `api-contract.json`, `API_SURFACE.md`, CLI descriptors, and dashboard manifests from the same source.
+- Let dashboards call machine-stable CLI JSON commands instead of scraping human prompt output.
 
 ## Package contract
 

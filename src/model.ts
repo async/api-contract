@@ -146,6 +146,7 @@ export interface LedgerSection extends ExtensionFields {
     | "package-exports"
     | "cli"
     | "runtime"
+    | "operations"
     | "http"
     | "generated"
     | "config"

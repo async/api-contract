@@ -1,4 +1,5 @@
 import type { FeatureSpec, RenderLedgerInput, Surface } from "./model.js";
+import type { SerializedApiInterface, SerializedOperationSpec } from "./interface.js";
 
 export function renderApiSurfaceMarkdown(input: RenderLedgerInput): string {
   const manifest = input.manifest;
@@ -30,9 +31,24 @@ export function renderApiSurfaceMarkdown(input: RenderLedgerInput): string {
   pushSurfaceSection(lines, "Supported Surfaces", manifest.supported ?? []);
   pushSurfaceSection(lines, "Required Surfaces", manifest.required ?? []);
   pushSurfaceSection(lines, "Emitted Surfaces", manifest.emits ?? []);
+  pushOperationSection(lines, readSerializedInterface(manifest["x-interface"]));
   pushLifecycleSummary(lines, manifest.catalogs?.flatMap((catalog) => [...catalog.features]) ?? []);
 
   return `${lines.join("\n").trimEnd()}\n`;
+}
+
+function pushOperationSection(lines: string[], apiInterface: SerializedApiInterface | undefined): void {
+  if (!apiInterface || apiInterface.operations.length === 0) return;
+  lines.push("## Operations");
+  lines.push("");
+  lines.push(`Interface: \`${escapeCell(apiInterface.contractId)}\``);
+  lines.push("");
+  lines.push("| Operation | Feature | Title | Release | Lifecycle | Effects | CLI | Dashboard | Docs |");
+  lines.push("| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  for (const operation of [...apiInterface.operations].sort((a, b) => a.id.localeCompare(b.id))) {
+    lines.push(`| \`${escapeCell(operation.id)}\` | \`${escapeCell(operation.featureId)}\` | ${escapeCell(operation.title)} | ${operation.releaseTag} | ${operation.lifecycle} | ${formatList(operation.effects ?? [])} | ${formatCli(operation)} | ${formatDashboard(operation)} | ${formatList(operation.docs ?? [])} |`);
+  }
+  lines.push("");
 }
 
 function groupFeatures(features: readonly FeatureSpec[]): Array<[string, FeatureSpec[]]> {
@@ -83,4 +99,36 @@ function titleCase(value: string): string {
 
 function escapeCell(value: string): string {
   return value.replaceAll("|", "\\|");
+}
+
+function readSerializedInterface(value: unknown): SerializedApiInterface | undefined {
+  if (!isObject(value)) return undefined;
+  if (value.format !== "api-contract.interface.v1") return undefined;
+  if (typeof value.contractId !== "string") return undefined;
+  if (!Array.isArray(value.operations)) return undefined;
+  return value as unknown as SerializedApiInterface;
+}
+
+function formatList(values: readonly string[]): string {
+  return values.map((value) => `\`${escapeCell(value)}\``).join(", ");
+}
+
+function formatCli(operation: SerializedOperationSpec): string {
+  const command = operation.cli?.command;
+  if (Array.isArray(command)) return `\`${command.map(escapeCell).join(" ")}\``;
+  if (typeof command === "string") return `\`${escapeCell(command)}\``;
+  return "";
+}
+
+function formatDashboard(operation: SerializedOperationSpec): string {
+  const group = operation.dashboard?.group;
+  const view = operation.dashboard?.view;
+  if (group && view) return `${escapeCell(group)} / ${escapeCell(view)}`;
+  if (group) return escapeCell(group);
+  if (view) return escapeCell(view);
+  return "";
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
