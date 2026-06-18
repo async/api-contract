@@ -81,6 +81,8 @@ Contract: `@async/api-contract.runtime`
 | --- | --- | --- | --- | --- | --- | --- |
 | `runtime.generators.generateApiSurfaceMarkdown` | API surface markdown generator | public | stable | active |  |  |
 | `runtime.generators.generateMachineCliRouter` | Machine CLI router descriptor generator | public | stable | active |  |  |
+| `runtime.generators.generateMcpDescriptor` | MCP descriptor generator | public | stable | active |  |  |
+| `runtime.generators.generateMcpServerModule` | MCP stdio server module source generator | public | stable | active |  |  |
 | `runtime.generators.generateTypeScriptClient` | TypeScript client source generator | public | stable | active |  |  |
 | `runtime.interface.generateCliDescriptor` | CLI descriptor generator | public | stable | active |  |  |
 | `runtime.interface.generateDashboardManifest` | Dashboard manifest generator | public | stable | active |  |  |
@@ -130,6 +132,7 @@ Contract: `@async/api-contract.runtime`
 | --- | --- | --- | --- | --- | --- | --- |
 | `runtime.projection.defineCliProjection` | CLI projection declaration helper | public | stable | active |  |  |
 | `runtime.projection.defineDashboardProjection` | Dashboard projection declaration helper | public | stable | active |  |  |
+| `runtime.projection.defineMcpProjection` | MCP projection declaration helper | public | stable | active |  |  |
 | `runtime.projection.defineProjectionSet` | Projection set declaration helper | public | stable | active |  |  |
 
 ### Schema
@@ -164,6 +167,11 @@ Contract: `@async/api-contract.type-exports`
 | `type.CliDescriptor` | Generated CLI descriptor type | public | stable | active |  |  |
 | `type.DashboardManifest` | Generated dashboard manifest type | public | stable | active |  |  |
 | `type.MachineCliRouterDescriptor` | Machine CLI router descriptor type | public | stable | active |  |  |
+| `type.McpDescriptor` | Generated MCP descriptor type | public | stable | active |  |  |
+| `type.McpDescriptorOptions` | MCP descriptor generator options type | public | stable | active |  |  |
+| `type.McpExposure` | MCP exposure mode type | public | stable | active |  |  |
+| `type.McpServerModuleOptions` | MCP server module generator options type | public | stable | active |  |  |
+| `type.McpToolDescriptor` | Generated MCP tool descriptor type | public | stable | active |  |  |
 | `type.TypeScriptClientOptions` | TypeScript client generator options type | public | stable | active |  |  |
 
 ### Interface
@@ -189,6 +197,8 @@ Contract: `@async/api-contract.type-exports`
 
 | Feature | Title | Release | Stability | Lifecycle | Replacement | Docs |
 | --- | --- | --- | --- | --- | --- | --- |
+| `type.McpProjection` | MCP projection metadata type | public | stable | active |  |  |
+| `type.McpResultContent` | MCP result content mode type | public | stable | active |  |  |
 | `type.ProjectionSet` | Projection set type | public | stable | active |  |  |
 
 ### Schema
@@ -254,8 +264,8 @@ Contract: `@async/api-contract.package-metadata`
 | `@async/api-contract.cli` | `sha256:f3a9be69ec7b7f71c660c3e3395b5fe6619804248c16ad33fdba63ccc2d67a38` | `cli.check`, `cli.diff`, `cli.impact`, `cli.ledger`, `cli.usage.scan` |
 | `@async/api-contract.package-exports` | `sha256:a0ba11db988ff4683c33ae039c87519229110631ad7ecec36bf6bbbcdf04e8d1` | `bin.api-contract`, `export.generators`, `export.interface`, `export.projection`, `export.root`, `export.schema`, `export.types` |
 | `@async/api-contract.package-metadata` | `sha256:d7f3950ee79a616b25eb90d0e9947dac55bd14688b4beffa5420154009448927` | `metadata.engines.node`, `metadata.files.ledger`, `metadata.files.manifest`, `metadata.license.mit`, `metadata.packageManager.pnpm`, `metadata.publish.public`, `metadata.repository.github`, `metadata.sideEffects.false` |
-| `@async/api-contract.runtime` | `sha256:13bf22e5a5bca6d7659cd1e7cad785979241ce1b2e4ccb15affa96bfce93d094` | `runtime.catalog.defineFeatureCatalog`, `runtime.compare.compareSurface`, `runtime.derive.deriveSurface`, `runtime.diff.diffPackageContracts`, `runtime.generators.generateApiSurfaceMarkdown`, `runtime.generators.generateMachineCliRouter`, `runtime.generators.generateTypeScriptClient`, `runtime.hash.surfaceHash`, `runtime.impact.createImpactReport`, `runtime.interface.bindApiHandlers`, `runtime.interface.createOperationFeatureCatalog`, `runtime.interface.createOperationSurface`, `runtime.interface.defineApiContract`, `runtime.interface.defineJsonSchema`, `runtime.interface.defineOperation`, `runtime.interface.generateCliDescriptor`, `runtime.interface.generateDashboardManifest`, `runtime.interface.generatePackageManifest`, `runtime.interface.invokeOperation`, `runtime.interface.renderInterfaceMarkdown`, `runtime.interface.serializeApiInterface`, `runtime.ledger.renderApiSurfaceMarkdown`, `runtime.manifest.parsePackageContractManifest`, `runtime.projection.defineCliProjection`, `runtime.projection.defineDashboardProjection`, `runtime.projection.defineProjectionSet`, `runtime.schema.createSchemaFeature`, `runtime.schema.defineSchema`, `runtime.schema.jsonSchemaAdapter`, `runtime.schema.standardSchemaAdapter`, `runtime.surface.createSurface`, `runtime.usage.scanUsageTarget` |
-| `@async/api-contract.type-exports` | `sha256:5516b0ce77f78ecd6f2c8f84f9f15a560e2c8d885e9f8359528d7b07400cf35c` | `type.ApiContract`, `type.ApiHandlersFor`, `type.AssertCompatible`, `type.BoundApi`, `type.CliDescriptor`, `type.ContractRef`, `type.DashboardManifest`, `type.DefineSchemaInput`, `type.Expect`, `type.InferOperationInput`, `type.InferOperationOutput`, `type.MachineCliRouterDescriptor`, `type.OperationHandler`, `type.OperationSpec`, `type.PackageContractManifest`, `type.ProjectionSet`, `type.RequiresContract`, `type.SchemaAdapter`, `type.SchemaMetadata`, `type.StandardSchemaLike`, `type.SupportsContract`, `type.Surface`, `type.TypeScriptClientOptions` |
+| `@async/api-contract.runtime` | `sha256:7017eb0e6809823feda40c73e8dec051ef7a4d8553ca815e2e85268098b64f77` | `runtime.catalog.defineFeatureCatalog`, `runtime.compare.compareSurface`, `runtime.derive.deriveSurface`, `runtime.diff.diffPackageContracts`, `runtime.generators.generateApiSurfaceMarkdown`, `runtime.generators.generateMachineCliRouter`, `runtime.generators.generateMcpDescriptor`, `runtime.generators.generateMcpServerModule`, `runtime.generators.generateTypeScriptClient`, `runtime.hash.surfaceHash`, `runtime.impact.createImpactReport`, `runtime.interface.bindApiHandlers`, `runtime.interface.createOperationFeatureCatalog`, `runtime.interface.createOperationSurface`, `runtime.interface.defineApiContract`, `runtime.interface.defineJsonSchema`, `runtime.interface.defineOperation`, `runtime.interface.generateCliDescriptor`, `runtime.interface.generateDashboardManifest`, `runtime.interface.generatePackageManifest`, `runtime.interface.invokeOperation`, `runtime.interface.renderInterfaceMarkdown`, `runtime.interface.serializeApiInterface`, `runtime.ledger.renderApiSurfaceMarkdown`, `runtime.manifest.parsePackageContractManifest`, `runtime.projection.defineCliProjection`, `runtime.projection.defineDashboardProjection`, `runtime.projection.defineMcpProjection`, `runtime.projection.defineProjectionSet`, `runtime.schema.createSchemaFeature`, `runtime.schema.defineSchema`, `runtime.schema.jsonSchemaAdapter`, `runtime.schema.standardSchemaAdapter`, `runtime.surface.createSurface`, `runtime.usage.scanUsageTarget` |
+| `@async/api-contract.type-exports` | `sha256:a8a89ade664a585fa368d0f3dd6a84724a89406af575bcd4cb7c9a06e97b1708` | `type.ApiContract`, `type.ApiHandlersFor`, `type.AssertCompatible`, `type.BoundApi`, `type.CliDescriptor`, `type.ContractRef`, `type.DashboardManifest`, `type.DefineSchemaInput`, `type.Expect`, `type.InferOperationInput`, `type.InferOperationOutput`, `type.MachineCliRouterDescriptor`, `type.McpDescriptor`, `type.McpDescriptorOptions`, `type.McpExposure`, `type.McpProjection`, `type.McpResultContent`, `type.McpServerModuleOptions`, `type.McpToolDescriptor`, `type.OperationHandler`, `type.OperationSpec`, `type.PackageContractManifest`, `type.ProjectionSet`, `type.RequiresContract`, `type.SchemaAdapter`, `type.SchemaMetadata`, `type.StandardSchemaLike`, `type.SupportsContract`, `type.Surface`, `type.TypeScriptClientOptions` |
 
 ## Required Surfaces
 

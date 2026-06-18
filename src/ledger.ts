@@ -43,10 +43,10 @@ function pushOperationSection(lines: string[], apiInterface: SerializedApiInterf
   lines.push("");
   lines.push(`Interface: \`${escapeCell(apiInterface.contractId)}\``);
   lines.push("");
-  lines.push("| Operation | Feature | Title | Release | Lifecycle | Effects | CLI | Dashboard | Docs |");
-  lines.push("| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("| Operation | Feature | Title | Release | Lifecycle | Effects | CLI | Dashboard | MCP | Docs |");
+  lines.push("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const operation of [...apiInterface.operations].sort((a, b) => a.id.localeCompare(b.id))) {
-    lines.push(`| \`${escapeCell(operation.id)}\` | \`${escapeCell(operation.featureId)}\` | ${escapeCell(operation.title)} | ${operation.releaseTag} | ${operation.lifecycle} | ${formatList(operation.effects ?? [])} | ${formatCli(operation)} | ${formatDashboard(operation)} | ${formatList(operation.docs ?? [])} |`);
+    lines.push(`| \`${escapeCell(operation.id)}\` | \`${escapeCell(operation.featureId)}\` | ${escapeCell(operation.title)} | ${operation.releaseTag} | ${operation.lifecycle} | ${formatList(operation.effects ?? [])} | ${formatCli(operation)} | ${formatDashboard(operation)} | ${formatMcp(operation)} | ${formatList(operation.docs ?? [])} |`);
   }
   lines.push("");
 }
@@ -127,6 +127,11 @@ function formatDashboard(operation: SerializedOperationSpec): string {
   if (group) return escapeCell(group);
   if (view) return escapeCell(view);
   return "";
+}
+
+function formatMcp(operation: SerializedOperationSpec): string {
+  if (!operation.mcp || operation.mcp.enabled === false) return "";
+  return `\`${escapeCell(operation.mcp.toolName ?? operation.id)}\``;
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

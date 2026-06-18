@@ -3,7 +3,7 @@
 `@async/api-contract` is the metadata contract layer for packages and local
 tools. It lets maintainers describe multiple API concerns from one source, then
 emit stable artifacts for compatibility review, programmatic invocation, CLIs,
-local dashboards, evidence, and generated clients.
+local dashboards, MCP tools, evidence, and generated clients.
 
 The package still treats compatibility as feature-based:
 
@@ -22,6 +22,7 @@ Local developer tools often grow the same behavior in several places:
 - a programmatic API for tests and library users;
 - a CLI for humans;
 - a machine JSON command surface for automation and local dashboards;
+- an MCP server for agent/tool clients;
 - schema metadata for validation, prompts, and forms;
 - docs that explain the workflow;
 - reports and receipts that prove what happened;
@@ -30,6 +31,8 @@ Local developer tools often grow the same behavior in several places:
 When those surfaces are maintained separately, they drift.
 `@async/api-contract` keeps behavior behind programmatic handlers and makes CLI,
 dashboard, schema, and docs surfaces projections of one metadata source.
+MCP tools follow the same rule: they are adapters over operations, not a second
+place to implement behavior.
 
 ## Core Idea
 
@@ -40,6 +43,7 @@ Describe the API once:
 - callable operations;
 - CLI projections;
 - dashboard projections;
+- MCP projections;
 - effects, receipts, reports, and transcripts;
 - docs references.
 
@@ -49,6 +53,8 @@ Then generate review and adapter artifacts:
 - `API_SURFACE.md`;
 - CLI descriptors;
 - dashboard manifests;
+- MCP descriptors;
+- MCP stdio server module source;
 - typed client source;
 - machine CLI router descriptors.
 
@@ -182,6 +188,29 @@ It deliberately does not own:
 - business logic;
 - long-lived service state.
 
+### Generated MCP
+
+Use MCP projections when the goal is to expose selected operations as MCP tools.
+
+Use it when:
+
+- agent clients should discover and call tool operations;
+- MCP exposure needs to be explicit and reviewable;
+- maintainers want generated `registerTool()` boilerplate without adding an MCP
+  runtime dependency to this package.
+
+It emits:
+
+- MCP tool descriptors;
+- tool names, titles, descriptions, annotations, schemas, effects, and receipts;
+- TypeScript stdio server module source.
+
+It deliberately does not own:
+
+- business logic;
+- the MCP runtime dependency;
+- MCP resources, prompts, Streamable HTTP, auth, or subscriptions.
+
 ### Evidence And Receipts
 
 Use effects and receipts when the goal is to make local work auditable.
@@ -230,13 +259,16 @@ and impact workflows.
 
 Projections describe user-facing surfaces. A CLI projection names command paths,
 flags, positional arguments, prompts, output modes, and machine JSON mapping. A
-dashboard projection names form, table, detail, summary, or log views.
+dashboard projection names form, table, detail, summary, or log views. An MCP
+projection names which operations become MCP tools and how those tools should be
+described.
 
 ### Handlers
 
 Handlers are implementation functions bound to operation ids. A handler is the
-programmatic source of behavior. Tests, generated clients, CLI commands, and
-dashboard transports all invoke handlers through the same operation id.
+programmatic source of behavior. Tests, generated clients, CLI commands,
+dashboard transports, and generated MCP tools all invoke handlers through the
+same operation id.
 
 ### Effects
 
@@ -270,7 +302,11 @@ pnpm add @async/api-contract
 ```ts
 import { defineApiContract, defineOperation } from "@async/api-contract/interface";
 import { jsonSchemaAdapter } from "@async/api-contract/schema";
-import { generateCliDescriptor, generateDashboardManifest } from "@async/api-contract/generators";
+import {
+  generateCliDescriptor,
+  generateDashboardManifest,
+  generateMcpDescriptor
+} from "@async/api-contract/generators";
 
 const projectInitInput = jsonSchemaAdapter<{ name: string }>({
   type: "object",
@@ -315,6 +351,11 @@ const contract = defineApiContract({
         view: "form",
         resultView: "summary",
         transport: "machine-cli"
+      },
+      mcp: {
+        toolName: "project.init",
+        title: "Initialize project",
+        resultContent: "json-text"
       }
     })
   ]
@@ -322,6 +363,7 @@ const contract = defineApiContract({
 
 console.log(generateCliDescriptor(contract, { binaryName: "workspace-tool" }));
 console.log(generateDashboardManifest(contract, { binaryName: "workspace-tool" }));
+console.log(generateMcpDescriptor(contract, { serverName: "workspace-tool" }));
 ```
 
 ## Generating From Metadata
@@ -400,6 +442,73 @@ The generated dashboard manifest describes:
 Dashboard rule: the dashboard is a projection. It must not become the durable
 state authority.
 
+### Generating MCP Servers
+
+MCP can be generated from the same operation metadata. In v1, MCP support is
+limited to tools over stdio.
+
+```ts
+import { generateMcpDescriptor, generateMcpServerModule } from "@async/api-contract/generators";
+
+const contract = defineApiContract({
+  packageName: "workspace-tool",
+  operations: [
+    defineOperation({
+      id: "project.init",
+      title: "Initialize project",
+      input: projectInitInput,
+      output: projectInitOutput,
+      effects: ["filesystem.write"],
+      receipts: [{ kind: "report", pathTemplate: "reports/init-{timestamp}.md" }],
+      mcp: {
+        toolName: "project.init",
+        title: "Initialize project",
+        description: "Create a local project workspace.",
+        annotations: { destructiveHint: true },
+        resultContent: "json-text",
+        featureId: "mcp.project.init"
+      }
+    })
+  ]
+});
+
+const descriptor = generateMcpDescriptor(contract, {
+  serverName: "workspace-tool",
+  serverVersion: "1.0.0"
+});
+
+const serverSource = generateMcpServerModule(contract, {
+  serverName: "workspace-tool",
+  serverVersion: "1.0.0"
+});
+```
+
+The descriptor has `format: "api-contract.mcp.v1"` and includes package name,
+server name, protocol target, tools, schemas, effects, receipts, and feature
+ids. It is review data; it does not import or execute the MCP SDK.
+
+The generated server module is TypeScript source text. It imports
+`invokeOperation()` from `@async/api-contract`, imports `McpServer` and
+`StdioServerTransport` from the consuming project's MCP SDK install, registers
+tools, exports `createMcpServer(api)` and `main(api)`, and calls
+`invokeOperation(api, operationId, args)`.
+
+MCP exposure is explicit by default:
+
+```ts
+generateMcpDescriptor(contract); // only operations with mcp metadata
+generateMcpDescriptor(contract, { exposure: "all" }); // every operation except disabled MCP projections
+```
+
+Use explicit exposure for local-first tools because MCP tools are model-visible
+actions. Operation ids can become tool names only when they already match MCP
+tool-name guidance. If an operation id contains spaces or other unsafe
+characters, set `mcp.toolName`.
+
+Consumer packages install the official MCP TypeScript SDK only when they need
+to run the generated server module. `@async/api-contract` does not depend on an
+MCP runtime package.
+
 ### From Schema Metadata
 
 Schema-only dashboards or CLIs are valid.
@@ -430,6 +539,9 @@ const api = bindApiHandlers(contract, {
 
 Generated CLI and dashboard surfaces both route through the same operation
 handler.
+
+Generated MCP tools route through that same handler path. They should not embed
+handler implementation logic in generated source.
 
 ## Tooling Overview
 
@@ -554,9 +666,19 @@ summaries, empty states, or local transport calls.
 It emits dashboard projection metadata. It does not store durable dashboard
 state.
 
+### `defineMcpProjection()`
+
+Defines MCP tool projection metadata.
+
+Use it when selected operations should become MCP tools with explicit names,
+annotations, result content behavior, or feature ids.
+
+It emits MCP projection metadata. It does not import the MCP SDK or register
+runtime tools.
+
 ### `defineProjectionSet()`
 
-Groups CLI and dashboard projections.
+Groups CLI, dashboard, and MCP projections.
 
 Use it when a package wants to serialize projections independently from the
 operations that reference them.
@@ -597,6 +719,26 @@ invoke commands from the same metadata.
 
 It emits a dashboard manifest. It does not become state authority.
 
+### `generateMcpDescriptor()`
+
+Produces an MCP descriptor from operation metadata.
+
+Use it when maintainers need reviewable MCP tool exposure before generating or
+running a server adapter.
+
+It emits `api-contract.mcp.v1` metadata. It does not import or execute MCP SDK
+code.
+
+### `generateMcpServerModule()`
+
+Produces TypeScript source for a thin MCP stdio server adapter.
+
+Use it when a consuming package wants generated `registerTool()` boilerplate
+that invokes bound operation handlers.
+
+It emits source text with `createMcpServer(api)` and `main(api)`. It does not
+bundle handlers, install dependencies, or add MCP resources and prompts.
+
 ### `generateTypeScriptClient()`
 
 Produces deterministic TypeScript client source for operation invocation.
@@ -618,17 +760,20 @@ It emits route metadata. It does not scrape human CLI output.
 ## Example Matrix
 
 All examples are neutral and intentionally package-agnostic.
+Executable examples live in
+[`examples/combinations`](examples/combinations/README.md).
 
-| Example | Metadata Used | Emitted Artifacts |
+| Example | Combination | Why use it |
 | --- | --- | --- |
-| compatibility only | feature catalogs and surfaces | `api-contract.json`, `API_SURFACE.md`, diffs |
-| schema metadata only | `defineSchema()`, schema adapters | schema features, forms, validation descriptors |
-| programmatic API only | operations and handlers | bound API, operation invocation |
-| programmatic API plus CLI | operations, handlers, CLI projections | CLI descriptor, machine CLI routes |
-| programmatic API plus dashboard | operations, handlers, dashboard projections | dashboard manifest, local invoke metadata |
-| schema metadata plus CLI | schemas and CLI projections | validation commands, prompt metadata |
-| schema metadata plus dashboard | schemas and dashboard projections | forms, table/detail metadata |
-| full stack | schemas, operations, CLI, dashboard, receipts | manifest, ledger, descriptors, client source |
+| [`compatibility-only`](examples/combinations/compatibility-only/README.md) | Feature catalogs plus supported/required surfaces | Publish capability compatibility and ledgers before adding operation handlers. |
+| [`schema-metadata-only`](examples/combinations/schema-metadata-only/README.md) | Generic schema metadata only | Share validation, prompt, form, and table metadata without a runtime API. |
+| [`programmatic-api-only`](examples/combinations/programmatic-api-only/README.md) | Operations plus handlers | Establish one invocation path for tests and library consumers. |
+| [`api-plus-cli`](examples/combinations/api-plus-cli/README.md) | Operations plus CLI projection | Generate human commands and machine JSON routes while keeping CLI code thin. |
+| [`api-plus-dashboard`](examples/combinations/api-plus-dashboard/README.md) | Operations plus dashboard projection | Generate local dashboard view metadata that invokes the same operations. |
+| [`api-plus-mcp`](examples/combinations/api-plus-mcp/README.md) | Operations plus MCP projection | Expose selected operations as MCP tools without adding business logic to the MCP layer. |
+| [`schema-plus-cli`](examples/combinations/schema-plus-cli/README.md) | Schemas plus CLI projection | Generate validation or inspection command metadata from schemas alone. |
+| [`schema-plus-dashboard`](examples/combinations/schema-plus-dashboard/README.md) | Schemas plus dashboard projection | Generate dashboard form/table metadata from schemas before operations exist. |
+| [`full-stack`](examples/combinations/full-stack/README.md) | Schemas, operations, handlers, CLI, dashboard, MCP, receipts, manifest, ledger, and generated source | Show the complete one-source contract workflow across all generated surfaces. |
 
 Use names such as `workspace-tool`, `project-console`, and `acme-tool` in
 public examples.
@@ -654,8 +799,9 @@ feature-string evidence, but it is not a full parser or proof of semantic usage.
 ## Design Rules
 
 - Keep business logic in programmatic handlers.
-- Treat CLI and dashboard as projections.
+- Treat CLI, dashboard, and MCP as projections.
 - Let dashboards call machine-stable CLI JSON commands, not human prompt text.
+- Make MCP exposure explicit by default.
 - Keep README prose and dashboard layout hints out of compatibility hashes
   unless they are explicitly mapped to feature ids.
 - Use bounded docs references instead of embedding unbounded markdown by
@@ -664,7 +810,7 @@ feature-string evidence, but it is not a full parser or proof of semantic usage.
 - Preserve the existing `api-contract.package.v1` manifest envelope.
 - Put richer generation metadata under `x-interface`.
 - Keep this package generic. Host packages may map their own domain concepts
-  into schema, operation, CLI, dashboard, and evidence metadata later.
+  into schema, operation, CLI, dashboard, MCP, and evidence metadata later.
 
 ## Subpath Exports
 
@@ -685,7 +831,8 @@ surface markdown rendering.
 
 `@async/api-contract/interface` owns programmatic operation contracts.
 
-`@async/api-contract/projection` owns CLI and dashboard projection metadata.
+`@async/api-contract/projection` owns CLI, dashboard, and MCP projection
+metadata.
 
 `@async/api-contract/generators` owns deterministic artifact generators.
 

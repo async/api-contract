@@ -194,6 +194,22 @@
           "group": "generators"
         },
         {
+          "id": "runtime.generators.generateMcpDescriptor",
+          "title": "MCP descriptor generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "runtime.generators.generateMcpServerModule",
+          "title": "MCP stdio server module source generator",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
           "id": "runtime.generators.generateTypeScriptClient",
           "title": "TypeScript client source generator",
           "releaseTag": "public",
@@ -324,6 +340,14 @@
         {
           "id": "runtime.projection.defineDashboardProjection",
           "title": "Dashboard projection declaration helper",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "runtime.projection.defineMcpProjection",
+          "title": "MCP projection declaration helper",
           "releaseTag": "public",
           "stability": "stable",
           "lifecycle": "active",
@@ -486,6 +510,62 @@
         {
           "id": "type.MachineCliRouterDescriptor",
           "title": "Machine CLI router descriptor type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "type.McpDescriptor",
+          "title": "Generated MCP descriptor type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "type.McpDescriptorOptions",
+          "title": "MCP descriptor generator options type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "type.McpExposure",
+          "title": "MCP exposure mode type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "type.McpProjection",
+          "title": "MCP projection metadata type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "type.McpResultContent",
+          "title": "MCP result content mode type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "projection"
+        },
+        {
+          "id": "type.McpServerModuleOptions",
+          "title": "MCP server module generator options type",
+          "releaseTag": "public",
+          "stability": "stable",
+          "lifecycle": "active",
+          "group": "generators"
+        },
+        {
+          "id": "type.McpToolDescriptor",
+          "title": "Generated MCP tool descriptor type",
           "releaseTag": "public",
           "stability": "stable",
           "lifecycle": "active",
@@ -706,6 +786,8 @@
         "runtime.impact.createImpactReport",
         "runtime.generators.generateApiSurfaceMarkdown",
         "runtime.generators.generateMachineCliRouter",
+        "runtime.generators.generateMcpDescriptor",
+        "runtime.generators.generateMcpServerModule",
         "runtime.generators.generateTypeScriptClient",
         "runtime.interface.bindApiHandlers",
         "runtime.interface.createOperationFeatureCatalog",
@@ -723,6 +805,7 @@
         "runtime.manifest.parsePackageContractManifest",
         "runtime.projection.defineCliProjection",
         "runtime.projection.defineDashboardProjection",
+        "runtime.projection.defineMcpProjection",
         "runtime.projection.defineProjectionSet",
         "runtime.schema.createSchemaFeature",
         "runtime.schema.defineSchema",
@@ -748,6 +831,13 @@
         "type.InferOperationInput",
         "type.InferOperationOutput",
         "type.MachineCliRouterDescriptor",
+        "type.McpDescriptor",
+        "type.McpDescriptorOptions",
+        "type.McpExposure",
+        "type.McpProjection",
+        "type.McpResultContent",
+        "type.McpServerModuleOptions",
+        "type.McpToolDescriptor",
         "type.OperationHandler",
         "type.OperationSpec",
         "type.PackageContractManifest",

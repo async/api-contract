@@ -12,10 +12,12 @@ import type {
   OperationSpec
 } from "@async/api-contract/interface";
 import type { SchemaMetadata } from "@async/api-contract/schema";
-import type { ProjectionSet } from "@async/api-contract/projection";
+import type { McpProjection, ProjectionSet } from "@async/api-contract/projection";
 import type {
   CliDescriptor as GeneratorCliDescriptor,
-  MachineCliRouterDescriptor
+  MachineCliRouterDescriptor,
+  McpDescriptor,
+  McpServerModuleOptions
 } from "@async/api-contract/generators";
 
 type LoosePipelineRequirement = RequiresContract<"@async/pipeline.declaration">;
@@ -38,8 +40,11 @@ type HandlerInputCheck = Expect<IsEqual<Parameters<LiteralHandlers["project.init
 type HandlerOutputCheck = Expect<IsEqual<Awaited<ReturnType<LiteralHandlers["project.init"]>>, { ok: boolean }>>;
 type GeneratorExportCheck = Expect<IsEqual<GeneratorCliDescriptor["format"], "api-contract.cli.v1">>;
 type MachineRouterExportCheck = Expect<IsEqual<MachineCliRouterDescriptor["format"], "api-contract.machine-cli-router.v1">>;
+type McpDescriptorExportCheck = Expect<IsEqual<McpDescriptor["format"], "api-contract.mcp.v1">>;
+type McpServerOptionsExportCheck = Expect<IsEqual<McpServerModuleOptions["exposure"], "explicit" | "all" | undefined>>;
 type SchemaExportCheck = Expect<IsEqual<SchemaMetadata["id"], string>>;
 type ProjectionExportCheck = Expect<IsEqual<ProjectionSet["cli"], ProjectionSet["cli"]>>;
+type McpProjectionExportCheck = Expect<IsEqual<McpProjection["resultContent"], "json-text" | "text" | "structured" | undefined>>;
 
 export type TypeContractSmoke =
   | ExactCheck
@@ -50,5 +55,8 @@ export type TypeContractSmoke =
   | HandlerOutputCheck
   | GeneratorExportCheck
   | MachineRouterExportCheck
+  | McpDescriptorExportCheck
+  | McpServerOptionsExportCheck
   | SchemaExportCheck
-  | ProjectionExportCheck;
+  | ProjectionExportCheck
+  | McpProjectionExportCheck;

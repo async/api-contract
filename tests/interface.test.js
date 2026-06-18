@@ -21,11 +21,14 @@ import {
 import {
   defineCliProjection,
   defineDashboardProjection,
+  defineMcpProjection,
   defineProjectionSet
 } from '../dist/projection.js';
 import {
   generateApiSurfaceMarkdown,
   generateMachineCliRouter,
+  generateMcpDescriptor,
+  generateMcpServerModule,
   generateTypeScriptClient
 } from '../dist/generators.js';
 
@@ -88,7 +91,8 @@ function workspaceContract() {
     schemas: [projectConfigSchema],
     projections: defineProjectionSet({
       cli: [defineCliProjection({ command: 'project inspect', interactive: false })],
-      dashboard: [defineDashboardProjection({ group: 'Project', view: 'detail', transport: 'machine-cli' })]
+      dashboard: [defineDashboardProjection({ group: 'Project', view: 'detail', transport: 'machine-cli' })],
+      mcp: [defineMcpProjection({ operationId: 'project.verify', resultContent: 'text' })]
     }),
     operations: {
       'project.init': {
@@ -100,7 +104,14 @@ function workspaceContract() {
         docs: ['readme'],
         receipts: [{ kind: 'report', pathTemplate: 'reports/init-{timestamp}.md', required: true }],
         cli: { command: 'project init', interactive: true },
-        dashboard: { group: 'Project', view: 'form', resultView: 'summary', sort: 10 }
+        dashboard: { group: 'Project', view: 'form', resultView: 'summary', sort: 10 },
+        mcp: {
+          toolName: 'project.init',
+          title: 'Initialize project',
+          annotations: { destructiveHint: true },
+          resultContent: 'json-text',
+          featureId: 'mcp.project.init'
+        }
       },
       'project.verify': {
         title: 'Verify project',
@@ -126,6 +137,8 @@ test('defineApiContract derives operation surfaces and package manifests', () =>
   assert.equal(manifest['x-interface'].operations.length, 2);
   assert.equal(manifest['x-interface'].schemas[0].id, 'project.config');
   assert.equal(manifest['x-interface'].projections.cli[0].command, 'project inspect');
+  assert.equal(manifest['x-interface'].projections.mcp[0].operationId, 'project.verify');
+  assert.equal(manifest['x-interface'].operations.find((operation) => operation.id === 'project.init').mcp.toolName, 'project.init');
 
   const parsed = parsePackageContractManifest(manifest);
   assert.equal(parsed['x-interface'].operations[0].id, 'project.init');
@@ -208,6 +221,90 @@ test('generator subpath emits API markdown, machine CLI routers, and TypeScript 
   assert.match(client, /"project\.init": \(input: unknown\) => invokeOperation/);
 });
 
+test('generated MCP descriptor exposes explicit operation tools', () => {
+  const descriptor = generateMcpDescriptor(workspaceContract(), {
+    serverName: 'workspace-tool',
+    serverVersion: '1.2.3'
+  });
+  const init = descriptor.tools.find((tool) => tool.operationId === 'project.init');
+  const verify = descriptor.tools.find((tool) => tool.operationId === 'project.verify');
+
+  assert.equal(descriptor.format, 'api-contract.mcp.v1');
+  assert.equal(descriptor.packageName, '@acme/workspace-tool');
+  assert.equal(descriptor.serverName, 'workspace-tool');
+  assert.equal(descriptor.serverVersion, '1.2.3');
+  assert.equal(descriptor.protocolTarget, '2025-11-25');
+  assert.equal(descriptor.schemas[0].id, 'project.config');
+  assert.deepEqual(descriptor.tools.map((tool) => tool.name), ['project.init', 'project.verify']);
+  assert.equal(init.featureId, 'mcp.project.init');
+  assert.equal(init.inputSchema.properties.name.type, 'string');
+  assert.equal(init.outputSchema.properties.ok.type, 'boolean');
+  assert.deepEqual(init.effects, ['filesystem.write']);
+  assert.deepEqual(init.receipts, [{ kind: 'report', pathTemplate: 'reports/init-{timestamp}.md', required: true }]);
+  assert.deepEqual(init.annotations, { destructiveHint: true });
+  assert.equal(verify.resultContent, 'text');
+});
+
+test('MCP descriptor exposure can include all operations', () => {
+  const contract = defineApiContract({
+    packageName: 'workspace-tool',
+    operations: {
+      'project.init': {
+        title: 'Initialize project',
+        input: projectInitInput,
+        mcp: {}
+      },
+      'project.verify': {
+        title: 'Verify project'
+      }
+    }
+  });
+
+  assert.deepEqual(generateMcpDescriptor(contract).tools.map((tool) => tool.name), ['project.init']);
+  assert.deepEqual(generateMcpDescriptor(contract, { exposure: 'all' }).tools.map((tool) => tool.name), ['project.init', 'project.verify']);
+});
+
+test('MCP generation requires explicit names for unsafe operation ids', () => {
+  const unsafe = defineApiContract({
+    packageName: 'workspace-tool',
+    operations: {
+      'project init': {
+        title: 'Initialize project',
+        mcp: {}
+      }
+    }
+  });
+  const safe = defineApiContract({
+    packageName: 'workspace-tool',
+    operations: {
+      'project init': {
+        title: 'Initialize project',
+        mcp: { toolName: 'project.init' }
+      }
+    }
+  });
+
+  assert.throws(() => generateMcpDescriptor(unsafe), /MCP toolName is required/);
+  assert.equal(generateMcpDescriptor(safe).tools[0].name, 'project.init');
+});
+
+test('generated MCP server module is a thin stdio adapter', () => {
+  const source = generateMcpServerModule(workspaceContract(), {
+    serverName: 'workspace-tool',
+    serverVersion: '1.0.0'
+  });
+
+  assert.match(source, /from "@modelcontextprotocol\/server"/);
+  assert.match(source, /from "@modelcontextprotocol\/server\/stdio"/);
+  assert.match(source, /server\.registerTool/);
+  assert.match(source, /new StdioServerTransport\(\)/);
+  assert.match(source, /export async function main\(api: BoundApi\)/);
+  assert.match(source, /invokeOperation\(api, tool\.operationId, args\)/);
+  assert.match(source, /isError: true/);
+  assert.match(source, /structuredContent: value/);
+  assert.match(source, /"name": "project\.init"/);
+});
+
 test('bound handlers keep programmatic invocation behind generated surfaces', async () => {
   const contract = workspaceContract();
   const api = bindApiHandlers(contract, {
@@ -226,4 +323,5 @@ test('API surface markdown includes operation projection details', () => {
   assert.match(markdown, /`filesystem\.write`/);
   assert.match(markdown, /`project init`/);
   assert.match(markdown, /Project \/ form/);
+  assert.match(markdown, /`project\.init`/);
 });

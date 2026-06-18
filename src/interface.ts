@@ -141,9 +141,23 @@ export interface DashboardProjection extends ExtensionFields {
   transport?: "machine-cli" | "programmatic" | "none" | (string & {});
 }
 
+export type McpResultContent = "json-text" | "text" | "structured";
+
+export interface McpProjection extends ExtensionFields {
+  operationId?: OperationId;
+  toolName?: string;
+  title?: string;
+  description?: string;
+  enabled?: boolean;
+  annotations?: Record<string, unknown>;
+  resultContent?: McpResultContent;
+  featureId?: string;
+}
+
 export interface ProjectionSet extends ExtensionFields {
   cli?: readonly CliProjection[];
   dashboard?: readonly DashboardProjection[];
+  mcp?: readonly McpProjection[];
 }
 
 export interface OperationSpec<TInput = unknown, TOutput = unknown, TId extends string = OperationId> extends ExtensionFields {
@@ -163,6 +177,7 @@ export interface OperationSpec<TInput = unknown, TOutput = unknown, TId extends 
   receipts?: readonly ReceiptSpec[];
   cli?: CliProjection;
   dashboard?: DashboardProjection;
+  mcp?: McpProjection;
 }
 
 export interface DefineOperationInput<TInput = unknown, TOutput = unknown, TId extends string = OperationId> extends ExtensionFields {
@@ -182,6 +197,7 @@ export interface DefineOperationInput<TInput = unknown, TOutput = unknown, TId e
   receipts?: readonly ReceiptSpec[];
   cli?: CliProjection;
   dashboard?: DashboardProjection;
+  mcp?: McpProjection;
 }
 
 export type OperationRecord = Record<string, DefineOperationInput<unknown, unknown> | OperationSpec<unknown, unknown>>;
@@ -231,6 +247,7 @@ export interface SerializedOperationSpec extends ExtensionFields {
   receipts?: readonly ReceiptSpec[];
   cli?: CliProjection;
   dashboard?: DashboardProjection;
+  mcp?: McpProjection;
 }
 
 export interface SerializedApiInterface extends ExtensionFields {
@@ -398,7 +415,8 @@ export function defineOperation<TInput = unknown, TOutput = unknown>(input: Defi
     ...(input.docs === undefined ? {} : { docs: input.docs }),
     ...(input.receipts === undefined ? {} : { receipts: input.receipts }),
     ...(input.cli === undefined ? {} : { cli: input.cli }),
-    ...(input.dashboard === undefined ? {} : { dashboard: input.dashboard })
+    ...(input.dashboard === undefined ? {} : { dashboard: input.dashboard }),
+    ...(input.mcp === undefined ? {} : { mcp: input.mcp })
   };
 }
 
@@ -547,7 +565,7 @@ export function renderInterfaceMarkdown(contract: ApiContract): string {
   const lines: string[] = [];
   lines.push(`# ${contract.title ?? contract.packageName} Interface`);
   lines.push("");
-  lines.push("This file describes callable operations that can project into programmatic APIs, CLIs, and local dashboards.");
+  lines.push("This file describes callable operations that can project into programmatic APIs, CLIs, local dashboards, and MCP tools.");
   lines.push("");
   lines.push("| Operation | Feature | Title | Release | Lifecycle | Effects |");
   lines.push("| --- | --- | --- | --- | --- | --- |");
@@ -635,7 +653,8 @@ function serializeOperation(operation: OperationSpec): SerializedOperationSpec {
     ...(operation.docs === undefined ? {} : { docs: operation.docs }),
     ...(operation.receipts === undefined ? {} : { receipts: operation.receipts }),
     ...(operation.cli === undefined ? {} : { cli: operation.cli }),
-    ...(operation.dashboard === undefined ? {} : { dashboard: operation.dashboard })
+    ...(operation.dashboard === undefined ? {} : { dashboard: operation.dashboard }),
+    ...(operation.mcp === undefined ? {} : { mcp: operation.mcp })
   };
 }
 
