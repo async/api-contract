@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 - 2026-06-17
+
+- Add MCP projection metadata, descriptor generation, and generated stdio server source adapters.
+- Add MCP projection coverage to manifests, API surface markdown, README docs, and type exports.
+- Add runnable combination examples for compatibility, schema metadata, programmatic APIs, CLI, dashboard, MCP, and full-stack usage.
+
 ## 0.2.0 - 2026-06-17
 
 - Add generic schema metadata and projection layers for generated CLIs, dashboards, and clients.
