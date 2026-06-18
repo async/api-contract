@@ -83,7 +83,7 @@
   },
   "sideEffects": false,
   "devDependencies": {
-    "@async/pipeline": "0.8.9",
+    "@async/pipeline": "0.9.1",
     "@types/node": "24.12.4",
     "typescript": "6.0.3"
   }
